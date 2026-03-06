@@ -77,7 +77,8 @@ const quieroBuscar = async () => {
 
         fromDBPasajero.value = datos as datosPasajero;
         
-        // Cargar reservas
+        // Cargar reservas                                                                                  //Esto tengo que cambiarlo 
+                                                                                                            //Para que funcione con la paginacion.
         resDatos = await fetch(API_URL+'umu/aeropuerto/public/vuelo/reservas/pasajero?ps='+variable.value+'&page=0&size=10&sort=id');
         datos = await resDatos.json();
         fromDBReservas.value = Array.isArray(datos.content) ? datos.content : (Array.isArray(datos) ? datos : []);
