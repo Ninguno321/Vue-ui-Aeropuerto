@@ -31,7 +31,6 @@ function showConfetti() {
         <p v-if="clicked">Ya te has registrado</p> <p v-if="clicked" class="confeti">🎊</p>
         </div>
     </div>
-    
 </template>
 
 
