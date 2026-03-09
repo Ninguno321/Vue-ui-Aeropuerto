@@ -1,0 +1,24 @@
+/* Cabecera de la tabla */ 
+.tabla.p-datatable .p-datatable-thead > tr > th {
+    background-color: hsla(160, 100%, 37%, 1) !important;
+    color: rgb(35, 35, 35) !important;
+    font-weight: bold !important;
+}
+
+/* Filas del cuerpo */
+.tabla.p-datatable .p-datatable-tbody > tr {
+    background-color: hsla(160, 95%, 43%, 0.349) !important;
+    transition: background-color 0.2s;
+    color: rgb(46, 46, 46) !important;
+}
+
+/* Hover sobre las filas */
+.tabla.p-datatable .p-datatable-tbody > tr:hover > td {
+    background-color: hsla(160, 99%, 35%, 0.685) !important; 
+}
+
+/* Fila seleccionada */
+.tabla.p-datatable .p-datatable-tbody > tr.p-datatable-row-selected > td {
+    background-color: #90caf9 !important;
+    color: #0d47a1 !important;
+}

@@ -5,7 +5,6 @@ import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import Button from 'primevue/button';
 import IftaLabel from 'primevue/iftalabel';
-import { v } from 'vue-router/dist/router-CWoNjPRp.mjs';
 import Paginator from 'primevue/paginator';
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -249,12 +248,14 @@ const registrar = () => {
               v-if="!fromDBPasajero && !quiereRegistrar" 
               @click="quieroBuscar"  
               label="Buscar" 
+              icon="pi pi-search" iconPos="left"
               raised 
             />
             <Button 
               v-if="!fromDBPasajero && !quiereRegistrar" 
               @click="registrar"  
               label="Registro" 
+              icon="pi pi-user-plus" iconPos="left"
               severity="secondary" 
               raised 
             />
@@ -262,6 +263,7 @@ const registrar = () => {
               v-if="quiereRegistrar && !fromDBPasajero" 
               @click="quieroRegistrar"  
               label="Registrar" 
+              icon="pi pi-user-plus" iconPos="left"
               severity="secondary" 
               raised 
             />
