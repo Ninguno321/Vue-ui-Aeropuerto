@@ -8,6 +8,8 @@ import IftaLabel from 'primevue/iftalabel';
 import Paginator from 'primevue/paginator';
 import Listbox from 'primevue/listbox';
 import AutoComplete, { type AutoCompleteCompleteEvent } from 'primevue/autocomplete';
+import BotonVolver from './BotonVolver.vue';
+
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -26,6 +28,17 @@ interface datosPasajero {
   dni: string,
   email: string,
   nacionalidad: string
+}
+
+
+const regresarDatos = () => {
+  variable.value = '';
+  fromDBPasajero.value = undefined;
+  fromDBReservas.value = [];
+  fromDBParkings.value = [];
+  tieneReservas.value = false;
+  tieneReservasParking.value = false;
+  tengoDatos.value = false;
 }
 
 const pasajeroRegistro: Ref<datosPasajero> = ref({
@@ -95,6 +108,7 @@ const quieroBuscar = async () => {
     } catch (_e) {
       console.error('Error cargando datos:', _e);
       fromDBPasajero.value = undefined;
+      tengoDatos.value = false; 
     } finally {
       loadingFromDB.value = false;
     }
@@ -192,10 +206,11 @@ watch(selectedCountry, (val) => {
 
 <template>
     <div>
-
+          <Transition name="fade">
           <h2 v-if="!fromDBPasajero && !quiereRegistrar && !tengoDatos">
             Para ver tu información introduce tu DNI.
           </h2>
+          </Transition >
 
         <Transition name="fade">
           <h1 v-if="tengoDatos || fromDBPasajero" class="green" id="titulo1">
@@ -203,6 +218,7 @@ watch(selectedCountry, (val) => {
           </h1>
         </Transition>
 
+        <Transition name="fade">
         <div v-if="!fromDBPasajero && !quiereRegistrar && !tengoDatos" class="div1">
           <InputText 
             class="texto" 
@@ -213,6 +229,7 @@ watch(selectedCountry, (val) => {
             variant="filled" 
           />
         </div>
+        </Transition>
 
         <Transition name="fade">
           <div class="divTabla" v-if="tengoDatos || fromDBPasajero">
@@ -272,15 +289,15 @@ watch(selectedCountry, (val) => {
           </div>
         </Transition>
 
-
+          <Transition name="fade">
         <div class="divFrom" v-if="quiereRegistrar && !fromDBPasajero">
            
-          <Transition name="slide-fade">
+
             <IftaLabel v-if="form1" >
                 <InputText class="texto2" v-model="pasajeroRegistro.nombrePasajero" :invalid="!pasajeroRegistro.nombrePasajero" />
                 <label for="nombre">Nombre</label>
             </IftaLabel>
-          </Transition>
+
 
             <IftaLabel>
                 <InputText class="texto2" v-model="pasajeroRegistro.apellidos" :invalid="!pasajeroRegistro.apellidos" />
@@ -304,9 +321,7 @@ watch(selectedCountry, (val) => {
                     dropdown 
                     class="w-full"
                         :pt="{
-        input: { class: 'texto2' }
-    }"              
-                    >
+                    input: { class: 'texto2' }}">
                     <template #option="slotProps">
                         <div class="flex items-center">
                             <img 
@@ -324,8 +339,10 @@ watch(selectedCountry, (val) => {
 
 
         </div>
-        
+        </Transition>
+
         <div class="div2">
+          <Transition name="fade">  
             <Button 
               v-if="!fromDBPasajero && !quiereRegistrar" 
               @click="quieroBuscar"  
@@ -333,7 +350,10 @@ watch(selectedCountry, (val) => {
               icon="pi pi-search" iconPos="left"
               raised 
             />
-            <Button 
+          </Transition>
+          <Transition name="fade">  
+
+          <Button 
               v-if="!fromDBPasajero && !quiereRegistrar" 
               @click="registrar"
               label="Registro" 
@@ -341,6 +361,9 @@ watch(selectedCountry, (val) => {
               severity="secondary" 
               raised 
             />
+          </Transition>
+          <Transition name="fade">  
+
             <Button 
               v-if="quiereRegistrar && !fromDBPasajero" 
               @click="quieroRegistrar"  
@@ -349,13 +372,20 @@ watch(selectedCountry, (val) => {
               severity="secondary" 
               raised 
             />
+          </Transition>
+
         </div>
     </div>
 
+    <div v-if="tengoDatos" class="botonVolver">
+    <BotonVolver @click="regresarDatos" :msg="'/profile'" />
+  </div>
 </template>
 
 
 <style scoped>
+
+
 h1 {
     font-size: 40px;
     text-align: center;
@@ -364,16 +394,22 @@ h1 {
 
 
 /*Esto para las tablas cuando ya teregistras*/
-.fade-enter-active,
+/* Entra lento (0.8s) */
+.fade-enter-active {
+  transition: opacity 0.8s ease-out;
+}
+
+/* Sale rápido (0s) */
 .fade-leave-active {
-  transition: opacity 0.5s ease;
+  content-visibility: hidden;
+  transition: opacity 0s ease-in;
+  position: absolute; /* Evita que empuje a los demás al salir */
 }
 
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
 }
-
 /*
 :deep(.p-autocomplete-input) {
     width: 100%;
@@ -430,7 +466,7 @@ h2 {
     max-width: max-content;
     display: flex;
     justify-content: flex-end;
-} 
+}
 
 .tabla{
     margin-bottom: 25px;

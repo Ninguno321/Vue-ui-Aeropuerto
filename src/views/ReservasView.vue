@@ -6,6 +6,12 @@ import Button from 'primevue/button';
 import InputText from 'primevue/inputtext';
 import LasReservas from '@/components/LasReservas.vue';
 import Listbox from 'primevue/listbox';
+import Select from 'primevue/select';
+import ConfirmarReservaItem from '@/components/ConfirmarReservaItem.vue';
+import Card from 'primevue/card';
+
+
+
 
 const route = useRoute();
 
@@ -62,38 +68,60 @@ const asientos = ref([
     { name: 'BUSINESS', code: 'BS' }
 ]);
 
+
+
 const open = ref(false);
 
 </script>
 
 
 <template>
-
+    
     <div>
         <LasReservas /> 
     </div>
+
+
     <div>
         <BotonVolver :msg="'/buscar/vuelos'" />
         Hola {{ idVuelo }}
 
+        <p>
+            Vas a reservar este vuelo, con un asiento: {{ claseAsiento }} y el DNI del pasajero es {{ DniPasajero }} 
+            con fecha tal tal, quieres confirmar?   
+        </p>
+
         <Button :disabled=" !DniPasajero|| !claseAsiento" @click="hacerReserva" label="Reservar" raised icon="pi pi-calendar-plus" iconPos="left"/>
         <InputText v-model="DniPasajero" :invalid="!DniPasajero" placeholder="Name" />
         {{ DniPasajero }}
-        <Listbox v-model="claseAsiento" :options="asientos" optionLabel="name" optionValue="name" checkmark :highlightOnSelect="false" class="w-full md:w-56" />
+        <Select v-model="claseAsiento" :options="asientos" optionLabel="name" placeholder="Select a City" :invalid="!claseAsiento" class="w-full md:w-56" />
 
         <button @click="open = true">Open Modal</button>
 
         <Teleport to="body">
         <div v-if="open" class="modal">
-            <p>Hello from the modal!</p>
-            <button @click="open = false">Close</button>
+            <ConfirmarReservaItem @Yalotengo="open=false" />
         </div>
         </Teleport>
     </div>
 </template>
 
 <style scoped>
+.fade2-enter-active {
+  transition: opacity 0.8s ease-out;
+}
 
+/* Sale rápido (0s) */
+.fade2-leave-active {
+  content-visibility: hidden;
+  transition: opacity 0s ease-in;
+  position: absolute; /* Evita que empuje a los demás al salir */
+}
+
+.fade2-enter-from,
+.fade2-leave-to {
+  opacity: 0;
+}
 
 .modal {
   position: fixed;

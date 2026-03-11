@@ -14,8 +14,11 @@ import '@/assets/tablas.css';
 
 const route = useRouter();
 
-onMounted(() => {   
-    buscaVuelos();
+const iniciado:Ref<boolean> = ref(false);
+
+onMounted(async() => {  
+    await buscaVuelos();
+    iniciado.value = true;
 });
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -87,6 +90,7 @@ const reservar = () => {
 
 <template>
 
+    <Transition name="fade2">
     <div class="divTabla" v-if="vuelosFromDB.length">
         <DataTable class="tabla" :value="vuelosFromDB" tableStyle="min-width: 50rem" v-model:selection="selectedReserva" selectionMode="single" dataKey="id">
             <Column field="trayecto.origen" header="Origen"></Column>
@@ -98,37 +102,32 @@ const reservar = () => {
             <Column field="capacidad" header="Capacidad"></Column>
         </DataTable>
     </div>
+    </Transition>
 
-
-        <div v-if="!vuelosFromDB.length" class="divTabla alineacion">
+    <Transition name="fade2">
+        <div v-if="!vuelosFromDB.length && iniciado" class="divTabla alineacion">
             <i class="pi pi-exclamation-circle"pos="left" />
             <p> No hay vuelos disponibles, lamentamos las molestias. </p>
         </div>
+    </Transition>
+    <Transition name="fade2">
+        <div class="div2">
+            <BotonVolver :msg="'/aeropuerto'" />
+        </div>
+    </Transition>
 
-
-    <div class="div2">
-        <BotonVolver :msg="'/aeropuerto'" />
-    </div>
-
-    <div class="div2 contenedor-botones">
-        <Button @click="buscaVuelos" label="Buscar Vuelos" raised icon="pi pi-search" />
-        <Button class="p-button" :disabled="!selectedID || esCancelado" @click="reservar" label="Reservar" severity="secondary" raised icon="pi pi-check" />
-    </div>
-
+    <Transition name="fade2">
+        <div class="div2 contenedor-botones">
+            <Button @click="buscaVuelos" label="Buscar Vuelos" raised icon="pi pi-search" />
+            <Button class="p-button" :disabled="!selectedID || esCancelado" @click="reservar" label="Reservar" severity="secondary" raised icon="pi pi-check" />
+        </div>
+    </Transition>   
  
 </template>
 
 <style scoped>
 
-.fade2-enter-active,
-.fade2-leave-active {
-  transition: opacity 0.5s ease;
-}
 
-.fade2-enter-from,
-.fade2-leave-to {
-  opacity: 0;
-}
 
 .divTabla {
     display: flex;

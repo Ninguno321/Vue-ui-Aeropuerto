@@ -23,20 +23,40 @@ const reservar = () => {
   <main>
     <div >
       <div class="columnas">
-        <div class="columna">
-          <p>Pulse "Buscar" para ver todos los vuelos disponibles.</p>
-            <Button @click="buscar" label="Buscar" icon="pi pi-search" iconPos="left"  raised />
-        </div>
-        <div class="columna">
-          <p>Pulse "Reservar" para reservar un vuelo o un parking.</p>
-          <Button @click="reservar" label="Reservar" raised icon="pi pi-calendar-plus" iconPos="left"/>
-        </div>
+        <Transition name="fade">
+          <div class="columna">
+            <p>Pulse "Buscar" para ver todos los vuelos disponibles.</p>
+              <Button @click="buscar" label="Buscar" icon="pi pi-search" iconPos="left"  raised />
+          </div>
+        </Transition> 
+        <Transition name="fade">
+          <div class="columna">
+            <p>Pulse "Reservar" para reservar un vuelo o un parking.</p>
+            <Button @click="reservar" label="Reservar" raised icon="pi pi-calendar-plus" iconPos="left"/>
+          </div>
+        </Transition>
       </div>
     </div>
   </main>
 </template>
 
 <style scoped>
+.fade-enter-active {
+  transition: opacity 0.8s ease-out;
+}
+
+/* Sale rápido (0s) */
+.fade-leave-active {
+  content-visibility: hidden;
+  transition: opacity 0s ease-in;
+  position: absolute; /* Evita que empuje a los demás al salir */
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
 
 .columnas {
   display: flex;

@@ -31,9 +31,15 @@ import { RouterView, RouterLink } from 'vue-router';
  
 
 <style>
-.fade-enter-active,
+.fade-enter-active {
+  transition: opacity 0.8s ease-out;
+}
+
+/* Sale rápido (0s) */
 .fade-leave-active {
-  transition: opacity 0.5s ease;
+  content-visibility: hidden;
+  transition: opacity 0s ease-in;
+  position: absolute; /* Evita que empuje a los demás al salir */
 }
 
 .fade-enter-from,
