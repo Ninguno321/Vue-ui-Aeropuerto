@@ -23,6 +23,8 @@
   --vt-c-text-dark-1: var(--vt-c-white);
   --vt-c-text-dark-2: rgba(235, 235, 235, 0.64);
   --vt-colorVERDE: #00ff59;
+  --vt-colorROJO: #ff0000;
+  
 }
 
 /* semantic color variables for this project */

@@ -7,13 +7,15 @@ import Button from 'primevue/button';
 import Column from 'primevue/column';
 import { onMounted } from 'vue';
 
+import 'primeicons/primeicons.css'
+
 
 import '@/assets/tablas.css';
 
 const route = useRouter();
 
-onMounted(() => {
-  buscaVuelos();
+onMounted(() => {   
+    buscaVuelos();
 });
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -96,6 +98,14 @@ const reservar = () => {
             <Column field="capacidad" header="Capacidad"></Column>
         </DataTable>
     </div>
+
+
+        <div v-if="!vuelosFromDB.length" class="divTabla alineacion">
+            <i class="pi pi-exclamation-circle"pos="left" />
+            <p> No hay vuelos disponibles, lamentamos las molestias. </p>
+        </div>
+
+
     <div class="div2">
         <BotonVolver :msg="'/aeropuerto'" />
     </div>
@@ -110,11 +120,40 @@ const reservar = () => {
 
 <style scoped>
 
+.fade2-enter-active,
+.fade2-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade2-enter-from,
+.fade2-leave-to {
+  opacity: 0;
+}
+
 .divTabla {
     display: flex;
     justify-content: center;
     margin-top: 2rem;
 }
+
+.divTabla p{
+    font-size: 1.2rem;
+    color: var(--colorVerde);
+}
+
+
+.alineacion {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 1rem;
+}
+
+
+.alineacion i{
+    color: var(--vt-colorROJO);
+}
+
 
 .div2 {
     margin-top: 2rem;
