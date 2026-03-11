@@ -77,10 +77,7 @@ const buscaVuelos = async () => {
 }
 
 const reservar = () => {
-    route.push({
-        name: 'reservar',
-        params: { idVuelo: selectedID.value }
-    })
+    route.push(`/reservar/${selectedID.value}`);
 }
 
 </script>
@@ -108,12 +105,10 @@ const reservar = () => {
         <Button class="p-button" :disabled="!selectedID || esCancelado" @click="reservar" label="Reservar" severity="secondary" raised icon="pi pi-check" />
     </div>
 
-
-
+ 
 </template>
 
 <style scoped>
-
 
 .divTabla {
     display: flex;
@@ -141,4 +136,4 @@ const reservar = () => {
     cursor: not-allowed;                    /* Cambia el cursor a un círculo tachado */
 }
 
-</style>
+</style> 

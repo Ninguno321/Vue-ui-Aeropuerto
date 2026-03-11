@@ -15,7 +15,8 @@ app.use(PrimeVue, {
     theme: {
         preset: Aura,
         options: {
-            darkMode: false 
+            // Force light mode: dark scheme activates only if this selector exists.
+            darkModeSelector: '.umu-dark'
         }
     }
 });

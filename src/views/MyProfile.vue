@@ -11,7 +11,7 @@ import MensajeMyProfile from '@/components/MensajeMyProfile.vue';
 </template>
 
 
-<style scope>
+<style scoped>
 
 
 

@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import InputText from 'primevue/inputtext';
-import {onMounted, onUpdated, ref, type Ref, computed} from 'vue'
+import {onMounted,watch,  onUpdated, ref, type Ref, computed} from 'vue'
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import Button from 'primevue/button';
 import IftaLabel from 'primevue/iftalabel';
 import Paginator from 'primevue/paginator';
+import Listbox from 'primevue/listbox';
+import AutoComplete, { type AutoCompleteCompleteEvent } from 'primevue/autocomplete';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -142,20 +144,64 @@ const quieroRegistrar = async () => {
 const registrar = () => {
   pasajeroRegistro.value.dni = variable.value
   quiereRegistrar.value = true
+  muestraForm();
 }
 
+
+const form1:Ref<boolean> = ref(false);
+const muestraForm = () => {
+  form1.value = true;
+}
+
+
+// El valor seleccionado puede ser el objeto del país o el texto manual
+const selectedCountry = ref(); 
+const countries = ref([
+    { name: 'Australia', code: 'AU' },
+    { name: 'Brazil', code: 'BR' },
+    { name: 'China', code: 'CN' },
+    { name: 'Egypt', code: 'EG' },
+    { name: 'France', code: 'FR' },
+    { name: 'Germany', code: 'DE' },
+    { name: 'India', code: 'IN' },
+    { name: 'Japan', code: 'JP' },
+    { name: 'Spain', code: 'ES' },
+    { name: 'United States', code: 'US' }
+]);
+const filteredCountries = ref();
+
+const search = (event: AutoCompleteCompleteEvent) => {
+    if (!event.query.trim().length) {
+        filteredCountries.value = [...countries.value];
+    } else {
+        filteredCountries.value = countries.value.filter((country) => {
+            return country.name.toLowerCase().includes(event.query.toLowerCase());
+        });
+    }
+};
+
+// Sincronización: Si es objeto, guarda el nombre; si es texto (manual), guarda el texto.
+watch(selectedCountry, (val) => {
+    if (val && typeof val === 'object') {
+        pasajeroRegistro.value.nacionalidad = val.code;
+    } else {
+        pasajeroRegistro.value.nacionalidad = val || '';
+    }
+});
 </script>
 
 <template>
     <div>
-        <h2 v-if="!fromDBPasajero && !quiereRegistrar && !tengoDatos">
-          Para ver tu información introduce tu DNI.
-        </h2>
-        
 
-        <h1 v-if="tengoDatos || fromDBPasajero" class="green" id="titulo1">
-        Bienvenid@ {{ fromDBPasajero?.nombrePasajero }}
-        </h1>
+          <h2 v-if="!fromDBPasajero && !quiereRegistrar && !tengoDatos">
+            Para ver tu información introduce tu DNI.
+          </h2>
+
+        <Transition name="fade">
+          <h1 v-if="tengoDatos || fromDBPasajero" class="green" id="titulo1">
+          Bienvenid@ {{ fromDBPasajero?.nombrePasajero }}
+          </h1>
+        </Transition>
 
         <div v-if="!fromDBPasajero && !quiereRegistrar && !tengoDatos" class="div1">
           <InputText 
@@ -167,64 +213,75 @@ const registrar = () => {
             variant="filled" 
           />
         </div>
+
+        <Transition name="fade">
+          <div class="divTabla" v-if="tengoDatos || fromDBPasajero">
+          <DataTable class="tabla" :value="[fromDBPasajero]" tableStyle="min-width: 50rem">
+              <Column field="nombrePasajero" header="Nombre"></Column>
+              <Column field="apellidos" header="Apellidos"></Column>
+              <Column field="dni" header="DNI"></Column>
+              <Column field="email" header="Email"></Column>
+              <Column field="nacionalidad" header="Nacionalidad"></Column>
+          </DataTable>
+          </div>
+        </Transition>
+
+       <Transition name="fade">
+          <div v-if="tieneReservas">    
+              <h2>Historial de reservas</h2>
+              <div class="card">
+                  <Paginator :rows="10" :totalRecords="120" :rowsPerPageOptions="[1, 5, 30]"></Paginator>
+              </div>
+              <div class="divTabla" v-if="fromDBReservas.length">
+                  <DataTable class="tabla" :value="fromDBReservas" tableStyle="min-width: 50rem">
+                      <Column field="id" header="ID Reserva"></Column>
+                      <Column field="fechaReserva" header="Fecha"></Column>
+                      <Column field="vueloSeleccionado" header="Vuelo"></Column>
+                      <Column field="claseAsiento" header="Clase"></Column>
+                      <Column field="pasajeroID" header="Pasajero"></Column>
+                      <Column header="Cancelada">
+                          <template #body="slotProps">
+                              {{ slotProps.data.cancelada ? 'Sí' : 'No' }}
+                          </template>
+                      </Column>
+                  </DataTable>
+              </div>
+          </div>
+        </Transition> 
+
+
+        <Transition name="fade">
+          <div v-if="tieneReservasParking">
+              <h2>Historial de parkings</h2>
+              <div class="divTabla" v-if="fromDBParkings.length">
+                  <DataTable class="tabla" :value="fromDBParkings" tableStyle="min-width: 50rem">
+                      <Column field="id" header="ID"></Column>
+                      <Column field="tipoParking" header="Tipo"></Column>
+                      <Column field="precio" header="Precio"></Column>
+                      <Column field="fechaInicio" header="Inicio"></Column>
+                      <Column field="fechaFin" header="Fin"></Column>
+                      <Column field="pasajeroID" header="Pasajero"></Column>
+                  </DataTable>
+              </div>
+          </div>
+        </Transition>
         
+        <Transition name="fade">
+          <div v-if="errorRegPas" class="divError">
+              <h1 class="mensajeError">Datos incorrectos 🚨</h1>
+          </div>
+        </Transition>
 
-
-
-        <div class="divTabla" v-if="tengoDatos || fromDBPasajero">
-        <DataTable class="tabla" :value="[fromDBPasajero]" tableStyle="min-width: 50rem">
-            <Column field="nombrePasajero" header="Nombre"></Column>
-            <Column field="apellidos" header="Apellidos"></Column>
-            <Column field="dni" header="DNI"></Column>
-            <Column field="email" header="Email"></Column>
-            <Column field="nacionalidad" header="Nacionalidad"></Column>
-        </DataTable>
-        </div>
-
-        <div v-if="tieneReservas">    
-            <h2>Historial de reservas</h2>
-            <div class="card">
-                <Paginator :rows="10" :totalRecords="120" :rowsPerPageOptions="[1, 5, 30]"></Paginator>
-            </div>
-            <div class="divTabla" v-if="fromDBReservas.length">
-                <DataTable class="tabla" :value="fromDBReservas" tableStyle="min-width: 50rem">
-                    <Column field="id" header="ID Reserva"></Column>
-                    <Column field="fechaReserva" header="Fecha"></Column>
-                    <Column field="vueloSeleccionado" header="Vuelo"></Column>
-                    <Column field="claseAsiento" header="Clase"></Column>
-                    <Column field="pasajeroID" header="Pasajero"></Column>
-                    <Column header="Cancelada">
-                        <template #body="slotProps">
-                            {{ slotProps.data.cancelada ? 'Sí' : 'No' }}
-                        </template>
-                    </Column>
-                </DataTable>
-            </div>
-        </div>
-
-        <div v-if="tieneReservasParking">
-            <h2>Historial de parkings</h2>
-            <div class="divTabla" v-if="fromDBParkings.length">
-                <DataTable class="tabla" :value="fromDBParkings" tableStyle="min-width: 50rem">
-                    <Column field="id" header="ID"></Column>
-                    <Column field="tipoParking" header="Tipo"></Column>
-                    <Column field="precio" header="Precio"></Column>
-                    <Column field="fechaInicio" header="Inicio"></Column>
-                    <Column field="fechaFin" header="Fin"></Column>
-                    <Column field="pasajeroID" header="Pasajero"></Column>
-                </DataTable>
-            </div>
-        </div>
-
-        <div v-if="errorRegPas" class="divError">
-            <h1 class="mensajeError">Datos incorrectos 🚨</h1>
-        </div>
 
         <div class="divFrom" v-if="quiereRegistrar && !fromDBPasajero">
-            <IftaLabel>
+           
+          <Transition name="slide-fade">
+            <IftaLabel v-if="form1" >
                 <InputText class="texto2" v-model="pasajeroRegistro.nombrePasajero" :invalid="!pasajeroRegistro.nombrePasajero" />
                 <label for="nombre">Nombre</label>
             </IftaLabel>
+          </Transition>
+
             <IftaLabel>
                 <InputText class="texto2" v-model="pasajeroRegistro.apellidos" :invalid="!pasajeroRegistro.apellidos" />
                 <label for="apellidos">Apellidos</label>
@@ -237,10 +294,35 @@ const registrar = () => {
                 <InputText class="texto2" v-model="pasajeroRegistro.email" :invalid="!pasajeroRegistro.email" />
                 <label for="email">Email</label>
             </IftaLabel>
+
             <IftaLabel>
-                <InputText class="texto2" v-model="pasajeroRegistro.nacionalidad" :invalid="!pasajeroRegistro.nacionalidad" />
-                <label for="nacio">Nacionalidad</label>
+                <AutoComplete 
+                    v-model="selectedCountry" 
+                    optionLabel="name" 
+                    :suggestions="filteredCountries" 
+                    @complete="search" 
+                    dropdown 
+                    class="w-full"
+                        :pt="{
+        input: { class: 'texto2' }
+    }"              
+                    >
+                    <template #option="slotProps">
+                        <div class="flex items-center">
+                            <img 
+                                :alt="slotProps.option.name" 
+                                src="https://primefaces.org/cdn/primevue/images/flag/flag_placeholder.png" 
+                                :class="`flag flag-${slotProps.option.code.toLowerCase()} mr-2`" 
+                                style="width: 18px; margin-right: 8px;" 
+                            />
+                            <div>{{ slotProps.option.name }}</div>
+                        </div>
+                    </template>
+                </AutoComplete>
+                <label for="nacio">Nacionalidad (Selecciona o escribe)</label>
             </IftaLabel>
+
+
         </div>
         
         <div class="div2">
@@ -253,7 +335,7 @@ const registrar = () => {
             />
             <Button 
               v-if="!fromDBPasajero && !quiereRegistrar" 
-              @click="registrar"  
+              @click="registrar"
               label="Registro" 
               icon="pi pi-user-plus" iconPos="left"
               severity="secondary" 
@@ -269,7 +351,9 @@ const registrar = () => {
             />
         </div>
     </div>
+
 </template>
+
 
 <style scoped>
 h1 {
@@ -277,6 +361,35 @@ h1 {
     text-align: center;
     font-weight: 500;
 }
+
+
+/*Esto para las tablas cuando ya teregistras*/
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+/*
+:deep(.p-autocomplete-input) {
+    width: 100%;
+    background-color: #ffffff !important;
+    color: #222 !important;
+}
+
+:deep(.p-autocomplete-dropdown) {
+    background-color: #ffffff !important;
+    color: #222 !important;
+}
+:deep(.p-autocomplete-list-container) {
+    background-color: #ffffff !important;
+    color: #222 !important;
+}
+*/
 
 #titulo1 {
     margin-bottom: 50px;

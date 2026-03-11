@@ -1,12 +1,11 @@
 <script setup lang="ts">    
-import {ref, type Ref } from 'vue';                                            //Me llega la funcion para volver a la pantalla anterior.
+import {onMounted, ref, type Ref } from 'vue';                                            //Me llega la funcion para volver a la pantalla anterior.
 import { useRoute, RouterView, RouterLink } from 'vue-router';
 import BotonVolver from '@/components/BotonVolver.vue';
 import Button from 'primevue/button';
 import InputText from 'primevue/inputtext';
-
+import LasReservas from '@/components/LasReservas.vue';
 import Listbox from 'primevue/listbox';
-
 
 const route = useRoute();
 
@@ -18,12 +17,9 @@ const claseAsiento: Ref<string | undefined> = ref(undefined);
 const errorReservando:Ref<boolean> = ref(false);
 
 
-
 const propss = defineProps<{         //Me llega la url donde estaba antes
   msg2: string
 }>()
-
-
 
 const hacerReserva = async () => {
     errorReservando.value = false;
@@ -66,12 +62,16 @@ const asientos = ref([
     { name: 'BUSINESS', code: 'BS' }
 ]);
 
+const open = ref(false);
 
 </script>
 
 
 <template>
 
+    <div>
+        <LasReservas /> 
+    </div>
     <div>
         <BotonVolver :msg="'/buscar/vuelos'" />
         Hola {{ idVuelo }}
@@ -81,5 +81,26 @@ const asientos = ref([
         {{ DniPasajero }}
         <Listbox v-model="claseAsiento" :options="asientos" optionLabel="name" optionValue="name" checkmark :highlightOnSelect="false" class="w-full md:w-56" />
 
+        <button @click="open = true">Open Modal</button>
+
+        <Teleport to="body">
+        <div v-if="open" class="modal">
+            <p>Hello from the modal!</p>
+            <button @click="open = false">Close</button>
+        </div>
+        </Teleport>
     </div>
 </template>
+
+<style scoped>
+
+
+.modal {
+  position: fixed;
+  z-index: 999;
+  top: 20%;
+  left: 50%;
+  width: 300px;
+  margin-left: -150px;
+}
+</style>

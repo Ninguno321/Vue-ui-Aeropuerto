@@ -1,4 +1,9 @@
 /// <reference types="vite/client" />
 
-VITE_API_URL=http://localhost:8080/umu
+interface ImportMetaEnv {
+  readonly VITE_API_URL: string;
+}
 
+interface ImportMeta {
+  readonly env: ImportMetaEnv;
+}

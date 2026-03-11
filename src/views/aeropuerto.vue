@@ -6,22 +6,7 @@ import { RouterView, RouterLink, useRoute } from 'vue-router';
 import 'primeicons/primeicons.css'
 
 const route = useRouter();
-
-const loadingFromDB:Ref<boolean> = ref(false)
-const fromDB:Ref<string> = ref('')
-
-const text:Ref<string> = ref('')
-onMounted(async () =>{
-  loadingFromDB.value = true;
-  try {
-    const response = await fetch('http://localhost:8080/umu/aeropuerto/public/holaMundo');
-    fromDB.value = await response.text()      //.json()
-    text.value = fromDB.value
-  } catch(_e) {
-  }
-  loadingFromDB.value = false;
-})
-
+const show:Ref<boolean> = ref(false)
 
 const buscar = () => {
   route.push('/buscar/vuelos');
@@ -40,7 +25,7 @@ const reservar = () => {
       <div class="columnas">
         <div class="columna">
           <p>Pulse "Buscar" para ver todos los vuelos disponibles.</p>
-          <Button @click="buscar" label="Buscar" icon="pi pi-search" iconPos="left"  raised />
+            <Button @click="buscar" label="Buscar" icon="pi pi-search" iconPos="left"  raised />
         </div>
         <div class="columna">
           <p>Pulse "Reservar" para reservar un vuelo o un parking.</p>
@@ -49,7 +34,6 @@ const reservar = () => {
       </div>
     </div>
   </main>
-
 </template>
 
 <style scoped>
