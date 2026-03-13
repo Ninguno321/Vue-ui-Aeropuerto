@@ -36,12 +36,16 @@ function showConfetti() {
 
 <style scoped>
 i {
-    margin-top: 15px;
+    padding-top: 15px;
     text-align: right;
     color: hsla(160, 100%, 37%, 1);
 }
 h1 {
     font-size: 20px;          
+}
+
+.div1 a:hover{
+    border-radius: 0.85rem;
 }
 
 .confeti{

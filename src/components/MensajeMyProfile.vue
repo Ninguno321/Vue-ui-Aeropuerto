@@ -9,10 +9,27 @@ import Paginator from 'primevue/paginator';
 import Listbox from 'primevue/listbox';
 import AutoComplete, { type AutoCompleteCompleteEvent } from 'primevue/autocomplete';
 import BotonVolver from './BotonVolver.vue';
+import { useUserStore } from '@/stores/datos'; //Importamos el store de pinia 
+import { useReservaStore } from '@/stores/datos'; //Importamos el store de pinia 
+import { useParkingStore } from '@/stores/datos'; //Importamos el store de pinia 
+
 
 
 const API_URL = import.meta.env.VITE_API_URL;
 
+const userStore = useUserStore() // Instancia el store
+
+const reservasStore = useReservaStore() // Instancia el store
+
+const parkingStore = useParkingStore() // Instancia el store
+
+const size = ref({value: 'small'});
+
+/*
+    { label: 'Small', value: 'small' },
+    { label: 'Normal', value: 'null' },
+    { label: 'Large', value: 'large' }
+*/
 const variable:Ref<string> = ref('')
 const loadingFromDB:Ref<boolean> = ref(false)
 const quiereRegistrar:Ref<boolean> = ref(false)
@@ -21,6 +38,46 @@ const tieneReservas:Ref<boolean> = ref(false)
 const tieneReservasParking:Ref<boolean> = ref(false)
 
 const tengoDatos:Ref<boolean> = ref(false)
+
+onMounted(async () => {
+  if (userStore.tieneDatos() && userStore.usuario) {
+    
+    //Cargamos directmaente desde la variable global
+    fromDBPasajero.value = userStore.usuario;
+    tengoDatos.value = true;
+    variable.value = userStore.usuario.dni;
+
+    if (reservasStore.tieneDatos()) {
+      fromDBReservas.value = reservasStore.reserva;
+      tieneReservas.value = true;
+    }
+
+    if (parkingStore.tieneDatos()) {
+      fromDBParkings.value = parkingStore.parkings;
+      tieneReservasParking.value = true;
+    }
+
+    //refrescamos desde la api por su hay nuevos datos.
+    try {
+      const resDatos = await fetch(API_URL + 'umu/aeropuerto/public/vuelo/pasajero?id=' + variable.value);
+      if (resDatos.ok) {
+        const datos = await resDatos.json();
+        fromDBPasajero.value = datos as datosPasajero;
+      }
+
+      // Refresca reservas y parkings
+      pageR.value = 0;
+      pageP.value = 0;
+      await buscaR();
+      await buscaP();
+
+      // Actualiza el store con los datos frescos
+      asignarGlobal();
+    } catch (e) {
+      console.error('Error refrescando datos:', e);
+    }
+  }
+});
 
 interface datosPasajero {
   nombrePasajero: string,
@@ -31,6 +88,7 @@ interface datosPasajero {
 }
 
 
+
 const regresarDatos = () => {
   variable.value = '';
   fromDBPasajero.value = undefined;
@@ -38,6 +96,7 @@ const regresarDatos = () => {
   fromDBParkings.value = [];
   tieneReservas.value = false;
   tieneReservasParking.value = false;
+  userStore.clearUsuario(); // Limpiamos el store 
   tengoDatos.value = false;
 }
 
@@ -75,6 +134,91 @@ const fromDBPasajero:Ref<datosPasajero|undefined> = ref(undefined)
 const fromDBReservas:Ref<datosReservas[]> = ref([])
 const fromDBParkings:Ref<datosParkings[]> = ref([])
 
+//Esto es para la paginacion de los las tablas Reservas y Parking
+const pageR = ref(0)
+const sizeR = 3
+const sortFieldR = ref("fechaReserva")
+const sortOrderR = ref(1)
+const loadingR = ref(false)
+const totalRecordsR = ref(0)
+
+
+const pageP = ref(0)
+const sizeP = 3
+const sortFieldP = ref("fin")
+const sortOrderP = ref(1)
+const loadinP = ref(false)
+const totalRecordP = ref(0)
+
+const reservaParkingSeleccionada = ref('')
+
+const reservaSeleccionada = ref('')
+
+
+const onPageR = (event: any) => {
+  pageR.value = event.page
+  buscaR()
+}
+
+const onSortR = (event: any) => {
+  sortFieldR.value = event.sortField
+  sortOrderR.value = event.sortOrder
+  pageR.value = 0
+  buscaR()
+}
+
+const onPageP = (event: any) => {
+  pageP.value = event.page
+  buscaP()
+}
+
+const onSortP = (event: any) => {
+  sortFieldP.value = event.sortField
+  sortOrderP.value = event.sortOrder
+  pageP.value = 0
+  buscaP()
+}
+
+const buscaR = async () => {
+  loadingR.value = true
+  try {
+    const order = sortOrderR.value === 1 ? 'asc' : 'desc'
+    const url = `${API_URL}umu/aeropuerto/public/vuelo/reservas/pasajero?ps=${variable.value}&page=${pageR.value}&size=${sizeR}&sort=${sortFieldR.value},${order}`
+    const res = await fetch(url)
+    const data = await res.json()
+
+    fromDBReservas.value = data.content ?? []
+    totalRecordsR.value = data.totalElements ?? 0
+    tieneReservas.value = fromDBReservas.value.length > 0
+  } catch (e) {
+    console.error('Error al cargar reservas', e)
+  } finally {
+    loadingR.value = false
+  }
+}
+
+const selectedReserva: Ref<datosReservas | undefined> = ref(undefined)
+
+const buscaP = async () => {
+  loadinP.value = true
+  try {
+    const order = sortOrderP.value === 1 ? 'asc' : 'desc'
+    const url = `${API_URL}umu/aeropuerto/public/parking/pasajero?idPasajero=${variable.value}&page=${pageP.value}&size=${sizeP}&sort=${sortFieldP.value},${order}`
+    const res = await fetch(url)
+    const data = await res.json()
+
+    fromDBParkings.value = data.content ?? []
+    totalRecordP.value = data.totalElements ?? 0
+    console.log(totalRecordP.value)
+    tieneReservasParking.value = fromDBParkings.value.length > 0
+  } catch (e) {
+    console.error('Error al cargar parkings', e)
+  } finally {
+    loadinP.value = false
+  }
+}
+
+
 const quieroBuscar = async () => {
   if (variable.value.length >= 8) {
     loadingFromDB.value = true;
@@ -90,24 +234,34 @@ const quieroBuscar = async () => {
         console.log('Datos del pasajero:', datos);
 
         fromDBPasajero.value = datos as datosPasajero;
-        
-        // Cargar reservas                                                                                  //Esto tengo que cambiarlo 
-                                                                                                            //Para que funcione con la paginacion.
+        tengoDatos.value = true;
+
+          pageR.value = 0
+          pageP.value = 0
+          await buscaR()
+          await buscaP()
+          // Cargar reservas                                                                                  //Esto tengo que cambiarlo 
+         /*                                                                                                   //Para que funcione con la paginacion.
         resDatos = await fetch(API_URL+'umu/aeropuerto/public/vuelo/reservas/pasajero?ps='+variable.value+'&page=0&size=10&sort=id');
         datos = await resDatos.json();
         fromDBReservas.value = Array.isArray(datos.content) ? datos.content : (Array.isArray(datos) ? datos : []);
         tieneReservas.value = fromDBReservas.value.length > 0;
+*/
 
-        // Cargar parkings
+        /*// Cargar parkings
         resDatos = await fetch(API_URL+'umu/aeropuerto/public/parking/pasajero?idPasajero='+variable.value+'&page=0&size=10&sort=id');
         datos = await resDatos.json();
         fromDBParkings.value = Array.isArray(datos.content) ? datos.content : (Array.isArray(datos) ? datos : []);
         tieneReservasParking.value = fromDBParkings.value.length > 0;
+*/
+  
 
-        tengoDatos.value = true;
+        asignarGlobal();
     } catch (_e) {
       console.error('Error cargando datos:', _e);
       fromDBPasajero.value = undefined;
+      fromDBReservas.value = []
+      fromDBParkings.value = []
       tengoDatos.value = false; 
     } finally {
       loadingFromDB.value = false;
@@ -159,6 +313,32 @@ const registrar = () => {
   pasajeroRegistro.value.dni = variable.value
   quiereRegistrar.value = true
   muestraForm();
+}
+
+const asignarGlobal = () => {
+  if (fromDBPasajero.value) {
+    console.log("Asignamos valores a Pinia");
+    
+    //forma manual 
+    userStore.setUsuario({
+      nombrePasajero: fromDBPasajero.value.nombrePasajero,
+      apellidos: fromDBPasajero.value.apellidos,
+      dni: fromDBPasajero.value.dni,
+      email: fromDBPasajero.value.email,
+      nacionalidad: fromDBPasajero.value.nacionalidad
+    });
+
+
+    //Forma automatica, usamos [...] para crear una copia.
+    if(fromDBReservas.value){
+      reservasStore.setReservas([...fromDBReservas.value])
+    }
+
+    if(fromDBParkings.value){
+      parkingStore.setParkings([...fromDBParkings.value])
+    }
+
+  }
 }
 
 
@@ -233,7 +413,7 @@ watch(selectedCountry, (val) => {
 
         <Transition name="fade">
           <div class="divTabla" v-if="tengoDatos || fromDBPasajero">
-          <DataTable class="tabla" :value="[fromDBPasajero]" tableStyle="min-width: 50rem">
+          <DataTable :size="size.value" :value="[fromDBPasajero]" tableStyle="min-width: 50rem">
               <Column field="nombrePasajero" header="Nombre"></Column>
               <Column field="apellidos" header="Apellidos"></Column>
               <Column field="dni" header="DNI"></Column>
@@ -246,17 +426,23 @@ watch(selectedCountry, (val) => {
        <Transition name="fade">
           <div v-if="tieneReservas">    
               <h2>Historial de reservas</h2>
-              <div class="card">
-                  <Paginator :rows="10" :totalRecords="120" :rowsPerPageOptions="[1, 5, 30]"></Paginator>
-              </div>
               <div class="divTabla" v-if="fromDBReservas.length">
-                  <DataTable class="tabla" :value="fromDBReservas" tableStyle="min-width: 50rem">
-                      <Column field="id" header="ID Reserva"></Column>
-                      <Column field="fechaReserva" header="Fecha"></Column>
-                      <Column field="vueloSeleccionado" header="Vuelo"></Column>
-                      <Column field="claseAsiento" header="Clase"></Column>
-                      <Column field="pasajeroID" header="Pasajero"></Column>
-                      <Column header="Cancelada">
+              <DataTable :size="size.value" :value="fromDBReservas"
+              paginator
+              lazy
+              :rows="3"
+              :totalRecords="totalRecordsR"
+              :loading="loadingR"
+              selectionMode="single"
+              :selection="reservaSeleccionada"
+              @page="onPageR" 
+              @sort="onSortR" 
+              dataKey="id" 
+              tableStyle="min-width: 50rem">
+                      <Column field="fechaReserva" header="Fecha" sortable></Column>
+                      <Column field="vueloSeleccionado" header="Vuelo" ></Column>
+                      <Column field="claseAsiento" header="Clase" sortable ></Column>
+                      <Column header="Cancelada" sortable>
                           <template #body="slotProps">
                               {{ slotProps.data.cancelada ? 'Sí' : 'No' }}
                           </template>
@@ -266,19 +452,30 @@ watch(selectedCountry, (val) => {
           </div>
         </Transition> 
 
-
         <Transition name="fade">
           <div v-if="tieneReservasParking">
               <h2>Historial de parkings</h2>
               <div class="divTabla" v-if="fromDBParkings.length">
-                  <DataTable class="tabla" :value="fromDBParkings" tableStyle="min-width: 50rem">
-                      <Column field="id" header="ID"></Column>
-                      <Column field="tipoParking" header="Tipo"></Column>
-                      <Column field="precio" header="Precio"></Column>
-                      <Column field="fechaInicio" header="Inicio"></Column>
-                      <Column field="fechaFin" header="Fin"></Column>
-                      <Column field="pasajeroID" header="Pasajero"></Column>
-                  </DataTable>
+            <DataTable 
+              :size="size.value"
+              :value="fromDBParkings"
+              paginator
+              lazy
+              :rows="3"
+              :totalRecords="totalRecordP"
+              :loading="loadinP"
+              selectionMode="single"
+              :selection="reservaParkingSeleccionada"
+              @page="onPageP" 
+              @sort="onSortP" 
+              dataKey="id" 
+              tableStyle="min-width: 50rem">
+              <Column field="tipoParking" header="Tipo" sortable></Column>
+              <Column field="precio" header="Precio" sortable></Column>
+              <Column field="fechaInicio" header="Inicio" sortable></Column>
+              <Column field="fechaFin" header="Fin" sortable></Column>       
+              <Column field="pasajeroID" header="Pasajero"></Column>
+            </DataTable>
               </div>
           </div>
         </Transition>
@@ -410,22 +607,7 @@ h1 {
 .fade-leave-to {
   opacity: 0;
 }
-/*
-:deep(.p-autocomplete-input) {
-    width: 100%;
-    background-color: #ffffff !important;
-    color: #222 !important;
-}
 
-:deep(.p-autocomplete-dropdown) {
-    background-color: #ffffff !important;
-    color: #222 !important;
-}
-:deep(.p-autocomplete-list-container) {
-    background-color: #ffffff !important;
-    color: #222 !important;
-}
-*/
 
 #titulo1 {
     margin-bottom: 50px;
@@ -445,6 +627,7 @@ h1 {
 
 h2 {
     text-align: left;
+    margin-bottom: 0.2rem;
 }
 
 .div1 {
@@ -463,9 +646,10 @@ h2 {
 }
 
 .divTabla{
-    max-width: max-content;
-    display: flex;
-    justify-content: flex-end;
+  display: flex;
+  justify-content: center;
+  margin-top: 0rem;
+  margin-bottom: 1.5rem;
 }
 
 .tabla{
@@ -474,6 +658,7 @@ h2 {
     justify-content: flex-end;
     background-color: #fff;
 }
+
 
 .div2 {
     display: flex;

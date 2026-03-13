@@ -29,8 +29,7 @@ import { RouterView, RouterLink } from 'vue-router';
     </Transition>
 </template>
  
-
-<style>
+<style scoped>
 .fade-enter-active {
   transition: opacity 0.8s ease-out;
 }
@@ -46,9 +45,6 @@ import { RouterView, RouterLink } from 'vue-router';
 .fade-leave-to {
   opacity: 0;
 }
-</style>
-
-<style scoped>
 
 
 .app-brand {
@@ -84,6 +80,18 @@ header {
 .logo {
   display: block;
   margin: 0 auto 2rem;
+}
+.nav{
+  display: flex;
+  gap: 0.5rem; 
+}
+
+.nav a:hover{
+  border-radius: 0.85rem;
+}
+
+.router-link-active {
+  font-weight: bold;
 }
 
 @media (min-width: 1024px) {

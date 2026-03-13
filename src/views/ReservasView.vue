@@ -1,5 +1,5 @@
 <script setup lang="ts">    
-import {onMounted, ref, type Ref } from 'vue';                                            //Me llega la funcion para volver a la pantalla anterior.
+import {onMounted,watch, computed, ref, type Ref } from 'vue';                                            //Me llega la funcion para volver a la pantalla anterior.
 import { useRoute, RouterView, RouterLink } from 'vue-router';
 import BotonVolver from '@/components/BotonVolver.vue';
 import Button from 'primevue/button';
@@ -9,19 +9,43 @@ import Listbox from 'primevue/listbox';
 import Select from 'primevue/select';
 import ConfirmarReservaItem from '@/components/ConfirmarReservaItem.vue';
 import Card from 'primevue/card';
+import { useUserStore } from '@/stores/datos';  
 
 
 
 
 const route = useRoute();
 
+const userStore = useUserStore() // Instancia el store
+
 const API_URL = import.meta.env.VITE_API_URL;
 
 const idVuelo:Ref<string> = ref(route.params.idVuelo as string)
 const DniPasajero:Ref<string | undefined> = ref(undefined);
-const claseAsiento: Ref<string | undefined> = ref(undefined);
+
+
+interface ClaseAsiento {
+    name: string;
+    code: string;
+}
+
+const claseAsiento: Ref<ClaseAsiento | undefined> = ref(undefined);
+
+const claseAsientoName = ref('')
+
+watch(claseAsiento, (val) => {
+    claseAsientoName.value = val?.name ?? '';
+});
+
 const errorReservando:Ref<boolean> = ref(false);
 
+onMounted(() => {
+    if(userStore.tieneDatos()){
+        DniPasajero.value = userStore.usuario?.dni
+
+    }
+
+})
 
 const propss = defineProps<{         //Me llega la url donde estaba antes
   msg2: string
@@ -33,7 +57,7 @@ const hacerReserva = async () => {
         const body = {
             vueloSeleccionado: idVuelo.value,
             pasajeroID: DniPasajero.value,
-            claseAsiento: claseAsiento.value,
+            claseAsiento: claseAsientoName.value ,
             cancelada: false
         }
 
@@ -58,10 +82,14 @@ const hacerReserva = async () => {
     }
 }
 
+const muestrapie:Ref<boolean> = ref(false);
 
-const rellenaInfo = () => {
+const confirmaReserva = () => {
+    open.value=false
+    muestrapie.value = true;
 
 }
+
 const asientos = ref([
     { name: 'ECONOMICO', code: 'ECO' },
     { name: 'PRIMERA', code: 'PR' },
@@ -87,24 +115,25 @@ const open = ref(false);
         Hola {{ idVuelo }}
 
         <p>
-            Vas a reservar este vuelo, con un asiento: {{ claseAsiento }} y el DNI del pasajero es {{ DniPasajero }} 
+            Vas a reservar este vuelo, con un asiento: {{ claseAsiento?.name }} y el DNI del pasajero es {{ DniPasajero }} 
             con fecha tal tal, quieres confirmar?   
         </p>
 
         <Button :disabled=" !DniPasajero|| !claseAsiento" @click="hacerReserva" label="Reservar" raised icon="pi pi-calendar-plus" iconPos="left"/>
         <InputText v-model="DniPasajero" :invalid="!DniPasajero" placeholder="Name" />
         {{ DniPasajero }}
-        <Select v-model="claseAsiento" :options="asientos" optionLabel="name" placeholder="Select a City" :invalid="!claseAsiento" class="w-full md:w-56" />
+        <Select v-model="claseAsiento" :options="asientos" optionLabel="name" placeholder="Clase" :invalid="!claseAsiento" class="w-full md:w-56" />
 
-        <button @click="open = true">Open Modal</button>
+            <button @click="open = true">Open Modal</button>
 
         <Teleport to="body">
         <div v-if="open" class="modal">
-            <ConfirmarReservaItem @Yalotengo="open=false" />
+            <ConfirmarReservaItem @Yalotengo="confirmaReserva" />
         </div>
         </Teleport>
     </div>
 </template>
+
 
 <style scoped>
 .fade2-enter-active {
