@@ -7,9 +7,29 @@ import Button from 'primevue/button'
 import Column from 'primevue/column'
 import 'primeicons/primeicons.css'
 import '@/assets/tablas.css'
+import { useReservaStore } from '@/stores/datos'; //Importamos el store de pinia 
+import { useUserStore } from '@/stores/datos'
+import FormUsuario from '@/components/FormUsuario.vue'
+
+
+const reservasStore = useReservaStore() // Instancia el store
+const userStore = useUserStore() // Instancia el store
+
+
 
 const route = useRouter()
 const API_URL = import.meta.env.VITE_API_URL
+
+const mostrarRegistro:Ref<boolean> = ref(false)
+
+
+
+
+
+
+
+
+
 const propss = defineProps<{ msg2: string }>()
 
 const iniciado: Ref<boolean> = ref(false)
@@ -70,13 +90,31 @@ const onSort = (event: any) => {
 }
 
 const reservar = () => {
-  route.push(`/reservar/${selectedID.value}`)
+    console.log(userStore.usuario)
+    
+    if(userStore.tieneDatos()){
+        route.push(`/reservar/${selectedID.value}`)
+    }else{
+        mostrarRegistro.value = true;
+        console.log("Primero tienes que registrarte")
+        reservasStore.setIdRes(selectedID.value);
+        //Primero tiene que registrarse, mostramos un Teleport con el registro y actualizamos la global.
+    }
 }
 
 onMounted(async () => {
-  await buscaVuelos()
-  iniciado.value = true
+    await buscaVuelos()
+    iniciado.value = true
 })
+
+const registradoPasajero = () => {
+    mostrarRegistro.value = false;
+    reservar()
+}
+
+
+
+
 </script>
 
 <template>
@@ -116,13 +154,20 @@ onMounted(async () => {
   </Transition>
 
   <Transition name="fade2">
+        <Teleport to="body">
+            <FormUsuario v-if=mostrarRegistro @cancelado="mostrarRegistro=false" @registrado="registradoPasajero()" class="modal"/>
+        </Teleport>
+  </Transition>
+
+
+  <Transition name="fade2">
     <div v-if="iniciado" class="div2 contenedor-botones">
       <Button @click="buscaVuelos" label="Buscar Vuelos" raised icon="pi pi-search" :loading="loading" />
-      <Button class="p-button" :disabled="!selectedID || esCancelado" @click="reservar" label="Reservar" severity="secondary" raised icon="pi pi-check" />
+      <Button class="p-button" :disabled="!selectedID || esCancelado || mostrarRegistro" @click="reservar" label="Reservar" severity="secondary" raised icon="pi pi-check" />
     </div>
   </Transition>
 </template>
-
+    
 <style scoped>
 .fade2-enter-active {
   transition: opacity 0.8s ease-out;
@@ -178,5 +223,14 @@ onMounted(async () => {
   color: #666666 !important;
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+.modal {
+  position: fixed;
+  z-index: 999;
+  top: 20%;
+  left: 50%;
+  width: 300px;
+  margin-left: -150px;
 }
 </style>

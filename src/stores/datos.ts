@@ -58,8 +58,10 @@ export const useUserStore = defineStore('user', () => {
 
 
 export const useReservaStore = defineStore('reserva', () => {
-    //Estado reactuvo
+    //Estado reactivo
     const reserva = ref<datosReservas[]>([])
+
+    const idReservaAux = ref('')
 
     //para guardar datos 
     function setReservas(datos : datosReservas[]){
@@ -75,7 +77,17 @@ export const useReservaStore = defineStore('reserva', () => {
         return reserva.value !== undefined && reserva.value !== null;
     }
 
-    return{reserva, setReservas, clearReserva, tieneDatos}
+    function setIdRes(res: string) {
+        idReservaAux.value = res;
+    }
+
+    function getIDRes(): String{
+        return idReservaAux.value
+    }
+
+
+
+    return{reserva, setReservas, clearReserva, tieneDatos, setIdRes, getIDRes}
 })
 
 

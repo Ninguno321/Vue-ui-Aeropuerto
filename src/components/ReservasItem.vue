@@ -8,6 +8,7 @@ const confirmaReserva = () => {
 
 }
 
+
 </script>
 
 
@@ -35,7 +36,7 @@ const confirmaReserva = () => {
     .main-container {
         display: flex;
         flex-direction: column;
-        min-height: 100vh; 
+
         margin-top: 2rem;
     }
 
@@ -45,11 +46,9 @@ const confirmaReserva = () => {
 
 .finalF {
     display: flex;
-    justify-content: center; /* Centra el contenido horizontalmente */
-    width: 100%;
-    padding: 80px;
-    /* El margin-top: auto es el "toque mágico" para mandarlo al fondo */
-    margin-top: 10rem; 
+    justify-content: right; 
+
+    margin-top: 10rem;
 }
 
 

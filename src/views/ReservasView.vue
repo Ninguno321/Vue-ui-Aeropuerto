@@ -5,10 +5,8 @@ import BotonVolver from '@/components/BotonVolver.vue';
 import Button from 'primevue/button';
 import InputText from 'primevue/inputtext';
 import LasReservas from '@/components/LasReservas.vue';
-import Listbox from 'primevue/listbox';
 import Select from 'primevue/select';
 import ConfirmarReservaItem from '@/components/ConfirmarReservaItem.vue';
-import Card from 'primevue/card';
 import { useUserStore } from '@/stores/datos';  
 
 
@@ -36,6 +34,10 @@ const claseAsientoName = ref('')
 watch(claseAsiento, (val) => {
     claseAsientoName.value = val?.name ?? '';
 });
+
+
+
+
 
 const errorReservando:Ref<boolean> = ref(false);
 
@@ -97,7 +99,6 @@ const asientos = ref([
 ]);
 
 
-
 const open = ref(false);
 
 </script>
@@ -105,9 +106,10 @@ const open = ref(false);
 
 <template>
     
-    <div>
-        <LasReservas /> 
-    </div>
+
+        <div>
+            <LasReservas :idVuelo="idVuelo" /> 
+        </div>
 
 
     <div>
@@ -128,7 +130,7 @@ const open = ref(false);
 
         <Teleport to="body">
         <div v-if="open" class="modal">
-            <ConfirmarReservaItem @Yalotengo="confirmaReserva" />
+            <ConfirmarReservaItem @Yalotengo="confirmaReserva" :idVuelo="idVuelo"/>
         </div>
         </Teleport>
     </div>

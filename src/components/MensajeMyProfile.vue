@@ -5,8 +5,6 @@ import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import Button from 'primevue/button';
 import IftaLabel from 'primevue/iftalabel';
-import Paginator from 'primevue/paginator';
-import Listbox from 'primevue/listbox';
 import AutoComplete, { type AutoCompleteCompleteEvent } from 'primevue/autocomplete';
 import BotonVolver from './BotonVolver.vue';
 import { useUserStore } from '@/stores/datos'; //Importamos el store de pinia 
@@ -486,15 +484,12 @@ watch(selectedCountry, (val) => {
           </div>
         </Transition>
 
-          <Transition name="fade">
-        <div class="divFrom" v-if="quiereRegistrar && !fromDBPasajero">
-           
-
+        <Transition name="fade">
+        <div class="divFrom" v-if="quiereRegistrar && !fromDBPasajero">       
             <IftaLabel v-if="form1" >
                 <InputText class="texto2" v-model="pasajeroRegistro.nombrePasajero" :invalid="!pasajeroRegistro.nombrePasajero" />
                 <label for="nombre">Nombre</label>
             </IftaLabel>
-
 
             <IftaLabel>
                 <InputText class="texto2" v-model="pasajeroRegistro.apellidos" :invalid="!pasajeroRegistro.apellidos" />
@@ -533,8 +528,6 @@ watch(selectedCountry, (val) => {
                 </AutoComplete>
                 <label for="nacio">Nacionalidad (Selecciona o escribe)</label>
             </IftaLabel>
-
-
         </div>
         </Transition>
 
@@ -548,7 +541,7 @@ watch(selectedCountry, (val) => {
               raised 
             />
           </Transition>
-          <Transition name="fade">  
+            <Transition name="fade">  
 
           <Button 
               v-if="!fromDBPasajero && !quiereRegistrar" 

@@ -7,7 +7,6 @@ import {onMounted,watch, computed, ref, type Ref } from 'vue';                  
 import Button from 'primevue/button';
 import BotonVolver from './BotonVolver.vue';
 import BotonLibre from './BotonLibre.vue';
-
 import Rating from 'primevue/rating';
 
 
@@ -29,6 +28,13 @@ const valoracion:Ref<number> = ref(0)
 
 const userStore = useUserStore();
 
+
+const props = defineProps<{         //Me llega la url donde estaba antes
+  idVuelo: string
+}>()
+
+
+
 </script>
 
 
@@ -39,6 +45,7 @@ representada por un componente ReservasItem. Para ello, vamos a usar un v-for pa
 <template>
     <ReservasItem>
         <template #icon>
+            
             <Fieldset legend="Header">
                 <p class="m-0">
                     Hola, {{ userStore.usuario?.nombrePasajero }}:
@@ -48,8 +55,11 @@ representada por un componente ReservasItem. Para ello, vamos a usar un v-for pa
             </Fieldset>
         </template>
         <template #heading>
-        <Button v-if="!open" @click="confirma" class="boton" label="Mostrar Información" raised icon="pi pi-check-circle" iconPos="left"/>
-        
+
+            <Button v-if="!open" @click="confirma" class="boton" label="Mostrar Información" raised icon="pi pi-check-circle" iconPos="left"/>
+            
+
+
             <div v-if="muestraMasInfo" class="masinfo">
                 <BotonVolver  :msg="'/buscar/vuelos'" />
                 <BotonLibre   :ruta="'/profile'" :label="'Ir a mi perfil'" :icono="'pi pi-user'"/>
@@ -57,19 +67,13 @@ representada por un componente ReservasItem. Para ello, vamos a usar un v-for pa
             </div>
         <Teleport to="body">
         <div v-if="open" class="modal">
-            <ConfirmarReservaItem @Yalotengo="confirmaReserva" />
+            <ConfirmarReservaItem @Yalotengo="confirmaReserva" :idVuelo="props.idVuelo" />
         </div>
         </Teleport>
         
         </template>
     
         <template #final>
-            <Fieldset legend="" :toggleable="true">
-                <p class="m-0">
-                    Este correo fue enviado automáticamente. No es necesario que respondas, a menos que quieras contarnos a qué ciudad te mueres por viajar hoy. 😎
-                </p>
-            </Fieldset>
-
             <Rating v-model="valoracion">
                 <template #onicon>
                     <img src="https://primefaces.org/cdn/primevue/images/rating/custom-onicon.png" height="24" width="24" />
@@ -78,7 +82,7 @@ representada por un componente ReservasItem. Para ello, vamos a usar un v-for pa
                     <img src="https://primefaces.org/cdn/primevue/images/rating/custom-officon.png" height="24" width="24" />
                 </template>
             </Rating>
-            
+
         </template>
     </ReservasItem>
 
@@ -101,6 +105,7 @@ representada por un componente ReservasItem. Para ello, vamos a usar un v-for pa
     display: flex;
     text-align: center;
 }
+
 
 </style>
 
