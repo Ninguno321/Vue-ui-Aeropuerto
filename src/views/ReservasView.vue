@@ -1,6 +1,6 @@
 <script setup lang="ts">    
 import {onMounted,watch, computed, ref, type Ref } from 'vue';                                            //Me llega la funcion para volver a la pantalla anterior.
-import { useRoute, RouterView, RouterLink } from 'vue-router';
+import { useRoute, useRouter, RouterView, RouterLink } from 'vue-router';
 import BotonVolver from '@/components/BotonVolver.vue';
 import Button from 'primevue/button';
 import InputText from 'primevue/inputtext';
@@ -9,9 +9,7 @@ import Select from 'primevue/select';
 import ConfirmarReservaItem from '@/components/ConfirmarReservaItem.vue';
 import { useUserStore } from '@/stores/datos';  
 
-
-
-
+const routeRuta = useRouter();
 const route = useRoute();
 
 const userStore = useUserStore() // Instancia el store
@@ -42,11 +40,13 @@ watch(claseAsiento, (val) => {
 const errorReservando:Ref<boolean> = ref(false);
 
 onMounted(() => {
+
     if(userStore.tieneDatos()){
         DniPasajero.value = userStore.usuario?.dni
-
+    }else{
+        routeRuta.push('/profile')      //me manda al perfil si no hay nadie registrado.
+                                        //al recargar la pagina se podia acceder a reserva y daba error.
     }
-
 })
 
 const propss = defineProps<{         //Me llega la url donde estaba antes
@@ -112,54 +112,10 @@ const open = ref(false);
         </div>
 
 
-    <div>
-        <BotonVolver :msg="'/buscar/vuelos'" />
-        Hola {{ idVuelo }}
-
-        <p>
-            Vas a reservar este vuelo, con un asiento: {{ claseAsiento?.name }} y el DNI del pasajero es {{ DniPasajero }} 
-            con fecha tal tal, quieres confirmar?   
-        </p>
-
-        <Button :disabled=" !DniPasajero|| !claseAsiento" @click="hacerReserva" label="Reservar" raised icon="pi pi-calendar-plus" iconPos="left"/>
-        <InputText v-model="DniPasajero" :invalid="!DniPasajero" placeholder="Name" />
-        {{ DniPasajero }}
-        <Select v-model="claseAsiento" :options="asientos" optionLabel="name" placeholder="Clase" :invalid="!claseAsiento" class="w-full md:w-56" />
-
-            <button @click="open = true">Open Modal</button>
-
-        <Teleport to="body">
-        <div v-if="open" class="modal">
-            <ConfirmarReservaItem @Yalotengo="confirmaReserva" :idVuelo="idVuelo"/>
-        </div>
-        </Teleport>
-    </div>
 </template>
 
 
 <style scoped>
-.fade2-enter-active {
-  transition: opacity 0.8s ease-out;
-}
 
-/* Sale rápido (0s) */
-.fade2-leave-active {
-  content-visibility: hidden;
-  transition: opacity 0s ease-in;
-  position: absolute; /* Evita que empuje a los demás al salir */
-}
 
-.fade2-enter-from,
-.fade2-leave-to {
-  opacity: 0;
-}
-
-.modal {
-  position: fixed;
-  z-index: 999;
-  top: 20%;
-  left: 50%;
-  width: 300px;
-  margin-left: -150px;
-}
 </style>

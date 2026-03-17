@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, type Ref, computed, onMounted } from 'vue'
+import { ref,watch,  type Ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import BotonVolver from '@/components/BotonVolver.vue'
 import DataTable from 'primevue/datatable'
@@ -10,24 +10,17 @@ import '@/assets/tablas.css'
 import { useReservaStore } from '@/stores/datos'; //Importamos el store de pinia 
 import { useUserStore } from '@/stores/datos'
 import FormUsuario from '@/components/FormUsuario.vue'
-
+import { useVueloStore } from '@/stores/datos'
 
 const reservasStore = useReservaStore() // Instancia el store
 const userStore = useUserStore() // Instancia el store
-
+const vueloStore = useVueloStore() // Instancia el store
 
 
 const route = useRouter()
 const API_URL = import.meta.env.VITE_API_URL
 
 const mostrarRegistro:Ref<boolean> = ref(false)
-
-
-
-
-
-
-
 
 
 const propss = defineProps<{ msg2: string }>()
@@ -37,9 +30,12 @@ const loading = ref(false)
 const vuelosFromDB: Ref<Vuelo[]> = ref([])
 const totalRecords = ref(0)
 
+
+
 const selectedReserva: Ref<Vuelo | undefined> = ref(undefined)
 const selectedID = computed(() => selectedReserva.value?.id ?? '')
 const esCancelado = computed(() => selectedReserva.value?.estadoVuelo.toUpperCase() === 'CANCELADO')
+
 
 const page = ref(0)
 const size = 7
@@ -55,6 +51,17 @@ interface Vuelo {
   destino: string
   estadoVuelo: string
 }
+
+watch(selectedReserva, (vuelo) => {
+  console.log("Nueva modificacion")
+  if(vuelo) {
+    vueloStore.setVuelo(vuelo)
+    console.log(vueloStore.vuelo)
+  }else{
+    vueloStore.clearVuelo()
+  }
+})
+
 
 const buscaVuelos = async () => {
   loading.value = true

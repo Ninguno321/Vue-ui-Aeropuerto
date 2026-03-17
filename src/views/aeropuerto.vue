@@ -14,7 +14,7 @@ const buscar = () => {
 
 
 const reservar = () => {
-  route.push('reservar');
+  route.push('/reservaParking');
 }
 </script>
 

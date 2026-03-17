@@ -111,3 +111,38 @@ export const useParkingStore = defineStore('parking', () => {
 
   return { parkings, setParkings, clearParkings, tieneDatos }
 })
+
+
+
+
+interface Vuelo {
+  id: string
+  fechaSalida: string
+  fechaLlegada: string
+  tipoVuelo: string
+  origen: string
+  destino: string
+  estadoVuelo: string
+}
+export const useVueloStore = defineStore('vuelo', () => {
+  // Estado reactivo: Empezamos con un array vacío
+  const vuelo = ref<Vuelo | undefined>(undefined)
+
+  function setVuelo(vueloP: Vuelo) {
+    vuelo.value = vueloP
+  }
+
+  
+  function clearVuelo() {
+    vuelo.value = undefined
+  }
+
+  //para comprobar si hay registros
+  function tieneDatos(): boolean {
+    return vuelo.value != undefined
+  }
+
+  return { vuelo, setVuelo, clearVuelo, tieneDatos }
+})
+
+

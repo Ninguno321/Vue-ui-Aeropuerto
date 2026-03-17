@@ -7,6 +7,7 @@ import PrimeVue from 'primevue/config';
 import Aura from '@primeuix/themes/aura';
 import { createPinia } from 'pinia'
 
+
 import './assets/tablas.css'
 
 const pinia = createPinia()

@@ -10,6 +10,8 @@ import BotonVolver from './BotonVolver.vue';
 import { useUserStore } from '@/stores/datos'; //Importamos el store de pinia 
 import { useReservaStore } from '@/stores/datos'; //Importamos el store de pinia 
 import { useParkingStore } from '@/stores/datos'; //Importamos el store de pinia 
+import ConfirmarReservaItem from './ConfirmarReservaItem.vue';
+import EditarReserva from './EditarReserva.vue';
 
 
 
@@ -150,8 +152,15 @@ const totalRecordP = ref(0)
 
 const reservaParkingSeleccionada = ref('')
 
-const reservaSeleccionada = ref('')
+const reservaSeleccionada:Ref<datosReservas|undefined> = ref(undefined)
+const muestraInfo = ref(false)
 
+watch(reservaSeleccionada, (reserva) => {
+  console.log("Seleccionamos reserva")
+  if(reserva){
+    muestraInfo.value = true;
+  }
+})
 
 const onPageR = (event: any) => {
   pageR.value = event.page
@@ -238,22 +247,6 @@ const quieroBuscar = async () => {
           pageP.value = 0
           await buscaR()
           await buscaP()
-          // Cargar reservas                                                                                  //Esto tengo que cambiarlo 
-         /*                                                                                                   //Para que funcione con la paginacion.
-        resDatos = await fetch(API_URL+'umu/aeropuerto/public/vuelo/reservas/pasajero?ps='+variable.value+'&page=0&size=10&sort=id');
-        datos = await resDatos.json();
-        fromDBReservas.value = Array.isArray(datos.content) ? datos.content : (Array.isArray(datos) ? datos : []);
-        tieneReservas.value = fromDBReservas.value.length > 0;
-*/
-
-        /*// Cargar parkings
-        resDatos = await fetch(API_URL+'umu/aeropuerto/public/parking/pasajero?idPasajero='+variable.value+'&page=0&size=10&sort=id');
-        datos = await resDatos.json();
-        fromDBParkings.value = Array.isArray(datos.content) ? datos.content : (Array.isArray(datos) ? datos : []);
-        tieneReservasParking.value = fromDBParkings.value.length > 0;
-*/
-  
-
         asignarGlobal();
     } catch (_e) {
       console.error('Error cargando datos:', _e);
@@ -432,7 +425,7 @@ watch(selectedCountry, (val) => {
               :totalRecords="totalRecordsR"
               :loading="loadingR"
               selectionMode="single"
-              :selection="reservaSeleccionada"
+              v-model:selection="reservaSeleccionada"
               @page="onPageR" 
               @sort="onSortR" 
               dataKey="id" 
@@ -450,6 +443,15 @@ watch(selectedCountry, (val) => {
           </div>
         </Transition> 
 
+
+        <Teleport  to="body">
+          <EditarReserva v-if="muestraInfo && reservaSeleccionada?.claseAsiento && 
+          reservaSeleccionada.id" class="modal" @Yalotengo="muestraInfo = false" 
+          @HuboError="muestraInfo = false" :idReserva="reservaSeleccionada?.id"
+          :asiento="reservaSeleccionada.claseAsiento"/>
+        </Teleport>
+
+
         <Transition name="fade">
           <div v-if="tieneReservasParking">
               <h2>Historial de parkings</h2>
@@ -463,7 +465,7 @@ watch(selectedCountry, (val) => {
               :totalRecords="totalRecordP"
               :loading="loadinP"
               selectionMode="single"
-              :selection="reservaParkingSeleccionada"
+              v-model:selection="reservaParkingSeleccionada"
               @page="onPageP" 
               @sort="onSortP" 
               dataKey="id" 
@@ -575,6 +577,14 @@ watch(selectedCountry, (val) => {
 
 <style scoped>
 
+.modal {
+  position: fixed;
+  z-index: 999;
+  top: 12%;
+  left: 50%;
+  width: 300px;
+  margin-left: -150px;
+}
 
 h1 {
     font-size: 40px;

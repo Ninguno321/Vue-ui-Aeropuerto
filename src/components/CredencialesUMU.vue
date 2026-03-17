@@ -7,7 +7,7 @@ const clicked:Ref<boolean> = ref(false)
 const cambiaValor = ()=> {
     clicked.value = true
     console.log("Se cambia el valor");
-    
+
     showConfetti();
 
 }

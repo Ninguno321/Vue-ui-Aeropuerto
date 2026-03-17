@@ -24,8 +24,10 @@ const emit = defineEmits(['Yalotengo', 'HuboError'])
 
 
 const props = defineProps<{         //Me llega la url donde estaba antes
-  idVuelo: string
+  idReserva: string | undefined
+  asiento: string | undefined
 }>()
+
 
 
 onMounted(() => {
@@ -39,18 +41,16 @@ const API_URL = import.meta.env.VITE_API_URL
 
 
 const errorReservando:Ref<boolean> = ref(false)
-const hacerReserva = async () => {
+const editarReserva = async () => {
     errorReservando.value = false;
     try {
         const body = {
-            vueloSeleccionado: props.idVuelo,
-            pasajeroID: dniPasajero.value,
-            claseAsiento: claseAsientoName.value ,
-            cancelada: false
-        }
+            reservaSeleccionada: props.idReserva,
+            claseAsiento: claseAsientoName.value
 
-        const response = await fetch(API_URL+'umu/aeropuerto/public/vuelo/reservar', {
-        method: 'POST',
+        }
+        const response = await fetch(API_URL+'umu/aeropuerto/public/vuelo/reservas/editar', {
+        method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body)
         });
@@ -95,15 +95,19 @@ const asientos = ref([
 
 <template>
     <Card style="width: 25rem; overflow: hidden">
-        <template #header>
-            <img alt="user header" src="/public/fotoChat.png" class="header-image"/>
-        </template>
+
         <template #title>Información del vuelo</template>
         <template #subtitle> <p>DNI: {{ dniPasajero }}</p>
                              <p>Pasajero: {{ nombrePasajero }} {{ apellidoPasajero }} 
                             email: {{ emailPasajero }}</p>
+            {{ props.idReserva }}     
+            {{ props.asiento }}
+            {{ claseAsientoName }}
         </template>
         <template #content>
+
+            Solo puedes editar el asiento o cancelar 
+
             <DataTable size="small" :value="vueloStore.vuelo ? [vueloStore.vuelo] : []" tableStyle="min-width: 10rem">
                 <Column field="destino" header="To"></Column>
                 <Column field="origen" header="From"></Column>
@@ -128,7 +132,7 @@ const asientos = ref([
         <template #footer>
             <div class="flex gap-4 mt-1 separa">
                 <Button @click="$emit('HuboError')" label="Cancel" severity="secondary" variant="outlined" class="w-full" />
-                <Button :disabled="claseAsientoName === '' || errorReservando" @click="hacerReserva" label="Reservar" raised icon="pi pi-calendar-plus" iconPos="left"/>
+                <Button :disabled="claseAsientoName === '' || errorReservando" @click="editarReserva" label="Reservar" raised icon="pi pi-calendar-plus" iconPos="left"/>
                 <Transition name="fade2">
                     <div v-if="errorReservando" class="divTabla alineacion">
                     <i class="pi pi-exclamation-circle" />

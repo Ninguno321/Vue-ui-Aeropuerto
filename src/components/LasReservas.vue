@@ -1,23 +1,36 @@
 <script setup lang="ts">    //Ponemos setup para poder usar la composition API, es decir, ref, computed, etc. y lang="ts" para usar TypeScript.
 import ReservasItem from './ReservasItem.vue';  //Importamos el componente ReservasItem, que es el que se va a encargar de mostrar cada reserva individualmente.
 import Fieldset from 'primevue/fieldset';
-import Card from 'primevue/card';
 import { useUserStore } from '@/stores/datos';
 import {onMounted,watch, computed, ref, type Ref } from 'vue';                                            //Me llega la funcion para volver a la pantalla anterior.
 import Button from 'primevue/button';
 import BotonVolver from './BotonVolver.vue';
 import BotonLibre from './BotonLibre.vue';
 import Rating from 'primevue/rating';
+import JSConfetti from 'js-confetti'
 
 
 import ConfirmarReservaItem from '@/components/ConfirmarReservaItem.vue';
 const open = ref(false);
+const confetti = new JSConfetti()
 
 const muestraMasInfo = ref(false);
 const confirmaReserva = () => {
     open.value=false
     muestraMasInfo.value = true
+    showConfetti();
 }
+
+
+const tratamientoError = () => {
+    open.value=false
+    muestraMasInfo.value = true
+}
+
+function showConfetti() {
+  confetti.addConfetti()
+}
+
 
 const confirma = () => {
     open.value=true
@@ -57,17 +70,17 @@ representada por un componente ReservasItem. Para ello, vamos a usar un v-for pa
         <template #heading>
 
             <Button v-if="!open" @click="confirma" class="boton" label="Mostrar Información" raised icon="pi pi-check-circle" iconPos="left"/>
-            
-
 
             <div v-if="muestraMasInfo" class="masinfo">
                 <BotonVolver  :msg="'/buscar/vuelos'" />
                 <BotonLibre   :ruta="'/profile'" :label="'Ir a mi perfil'" :icono="'pi pi-user'"/>
                 <BotonLibre   :ruta="'/reservaParking'" :label="'Reservar parking'" :icono="'pi pi-search-plus'" />
             </div>
+
+
         <Teleport to="body">
         <div v-if="open" class="modal">
-            <ConfirmarReservaItem @Yalotengo="confirmaReserva" :idVuelo="props.idVuelo" />
+            <ConfirmarReservaItem @Yalotengo="confirmaReserva" @HuboError="tratamientoError" :idVuelo="props.idVuelo" />
         </div>
         </Teleport>
         
@@ -92,8 +105,8 @@ representada por un componente ReservasItem. Para ello, vamos a usar un v-for pa
 .modal {
   position: fixed;
   z-index: 999;
-  top: 25%;
-  left: 65%;
+  top: 12%;
+  left: 50%;
   width: 300px;
   margin-left: -150px;
 }
@@ -104,6 +117,8 @@ representada por un componente ReservasItem. Para ello, vamos a usar un v-for pa
 .masinfo{
     display: flex;
     text-align: center;
+    gap: 1rem;
+    margin-top: 1rem; 
 }
 
 
