@@ -7,9 +7,12 @@ import { Select } from 'primevue';
 import { useReservaStore } from '@/stores/datos';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
+import ConfirmDialog from 'primevue/confirmdialog';
+import { useConfirm } from 'primevue';
+import { useToast } from "primevue/usetoast";
 
-
-
+const confirm = useConfirm();
+const toast = useToast();
 const userStore = useUserStore()
 const reservaStore = useReservaStore()
 
@@ -190,6 +193,28 @@ const vueloFormateado = computed(() => {
   }
 })
 
+
+const confirm2 = () => {
+    confirm.require({
+        message: '¿Estás seguro de que quieres eliminar esta reserva? Eliminará la reserva por completo y NO podrá recuperarla.',
+        header: 'Alerta',
+        icon: 'pi pi-info-circle',
+        acceptLabel: 'Eliminar',
+        rejectLabel: 'Cancelar',
+        acceptClass: 'p-button-danger', 
+        rejectClass: 'p-button-secondary',
+        accept: async () => {
+            await cancelaReserva(); 
+            toast.add({ severity: 'success', summary: 'Reserva eliminada', detail: 'La reserva fue cancelada', life: 3000 });
+            emit('HuboError'); 
+        },
+        reject: () => {
+            toast.add({ severity: 'warn', summary: 'Cancelado', detail: 'No se eliminó la reserva', life: 3000 });
+            emit('HuboError'); 
+        }
+    });
+};
+
 </script>
 
 <template>
@@ -237,10 +262,18 @@ const vueloFormateado = computed(() => {
                     </div>
                 </Transition>
                 <div v-if="!errorReservando" style="display: flex; align-items: flex-end; margin-left: auto;">                
-                <Button  :disabled="vueloNoMod()" @click="cancelaReserva" severity="danger" label="Cancelar" raised icon="pi pi-times" iconPos="left"/>
+                    <div class="card flex flex-wrap gap-2 justify-center">
+                        <Button :disabled="vueloNoMod()" @click="confirm2()" label="Cancelar" severity="danger" variant="outlined" raised icon="pi pi-times" iconPos="left"></Button>
+                    </div>
                 </div>
+
+
+
             </div>
         </template>
+
+
+
     </Card>
     
 </template>

@@ -27,6 +27,9 @@ import { RouterView, RouterLink } from 'vue-router';
     <Transition name="fade" mode="out-in">
       <RouterView/>
     </Transition>
+
+      <Toast position="top-right" />
+      <ConfirmDialog />
 </template>
  
 <style scoped>

@@ -59,7 +59,7 @@ representada por un componente ReservasItem. Para ello, vamos a usar un v-for pa
     <ReservasItem>
         <template #icon>
             
-            <Fieldset legend="Header">
+            <Fieldset legend="UMUFly">
                 <p class="m-0">
                     Hola, {{ userStore.usuario?.nombrePasajero }}:
                     ¡Gracias por unirte a nuestra comunidad de viajeros! Estamos muy felices de tenerte a bordo.

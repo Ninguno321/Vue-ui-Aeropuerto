@@ -6,6 +6,10 @@ import router from './router'
 import PrimeVue from 'primevue/config';
 import Aura from '@primeuix/themes/aura';
 import { createPinia } from 'pinia'
+import Toast from 'primevue/toast'
+import ConfirmDialog from 'primevue/confirmdialog'
+import ConfirmationService from 'primevue/confirmationservice';
+import {ToastService}  from 'primevue';
 
 
 import './assets/tablas.css'
@@ -13,7 +17,10 @@ import './assets/tablas.css'
 const pinia = createPinia()
 const app = createApp(App);
 app.use(router)
-
+app.use(ToastService);
+app.use(ConfirmationService);
+app.component('Toast', Toast)
+app.component('ConfirmDialog', ConfirmDialog)
 app.use(PrimeVue, {
     theme: {
         preset: Aura,

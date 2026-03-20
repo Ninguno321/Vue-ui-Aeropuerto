@@ -10,9 +10,12 @@ import BotonVolver from './BotonVolver.vue';
 import { useUserStore } from '@/stores/datos'; //Importamos el store de pinia 
 import { useReservaStore } from '@/stores/datos'; //Importamos el store de pinia 
 import { useParkingStore } from '@/stores/datos'; //Importamos el store de pinia 
-import ConfirmarReservaItem from './ConfirmarReservaItem.vue';
 import EditarReserva from './EditarReserva.vue';
+import { useConfirm } from 'primevue';
+import { useToast } from "primevue/usetoast";
 
+const confirm = useConfirm();
+const toast = useToast();
 
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -56,7 +59,6 @@ onMounted(async () => {
       fromDBParkings.value = parkingStore.parkings;
       tieneReservasParking.value = true;
     }
-
     //refrescamos desde la api por su hay nuevos datos.
     try {
       const resDatos = await fetch(API_URL + 'umu/aeropuerto/public/vuelo/pasajero?id=' + variable.value);
@@ -64,13 +66,11 @@ onMounted(async () => {
         const datos = await resDatos.json();
         fromDBPasajero.value = datos as datosPasajero;
       }
-
       // Refresca reservas y parkings
       pageR.value = 0;
       pageP.value = 0;
       await buscaR();
       await buscaP();
-
       // Actualiza el store con los datos frescos
       asignarGlobal();
     } catch (e) {
@@ -163,10 +163,73 @@ watch(reservaSeleccionada, (reserva) => {
 })
 
 
+const cancelarParking = async () => {
+
+  const resDatos = await fetch(API_URL + 'umu/aeropuerto/public/parking/reserva/cancelar?idParking='+ reservaParkingSeleccionada.value?.id+'&idPasajero='+userStore.usuario?.dni);
+  if (!resDatos.ok) {
+    console.error("Hubo un error eliminando el parking")
+    throw new Error('Reserva no eliminada');
+  }
+    console.log('cancelado')
+}
+
+
+
+const confirm2 = () => {
+    const reserva = reservaParkingSeleccionada.value;
+
+    if (!reserva || !reserva.fechaInicio) return;
+
+    const fechaInicio = new Date(reserva.fechaInicio);
+    const ahora = new Date();
+
+    // Si la fecha de inicio ya pasó, no permitir cancelar
+    if (fechaInicio < ahora) {
+        toast.add({
+            severity: 'warn',
+            summary: 'No se puede cancelar',
+            detail: 'El parking ya ha iniciado',
+            life: 3000
+        });
+        return; // sale sin abrir el diálogo
+    }
+
+    // Si todavía no ha pasado, mostramos el confirm
+    confirm.require({
+        message: '¿Estás seguro de que quieres eliminar esta reserva?',
+        header: 'Alerta',
+        icon: 'pi pi-info-circle',
+        acceptLabel: 'Eliminar',
+        rejectLabel: 'Cancelar',
+        acceptClass: 'p-button-danger',
+        rejectClass: 'p-button-secondary',
+        accept: async () => {
+            await cancelarParking();
+            cerrarCard()
+            editadoParking()
+            toast.add({
+                severity: 'success',
+                summary: 'Reserva eliminada',
+                detail: 'La reserva fue cancelada',
+                life: 3000
+            });
+        },
+        reject: () => {
+            cerrarCard()
+            toast.add({
+                severity: 'warn',
+                summary: 'Cancelado',
+                detail: 'No se canceló el parking ',
+                life: 3000
+            });
+        }
+    });
+};
+
 watch(reservaParkingSeleccionada, (reserva) => {
   console.log("Seleccionamos reserva Parking")
   if(reserva){
-    //muestraInfo.value = true;
+    confirm2()
   }
 })
 
@@ -185,6 +248,7 @@ const onSortR = (event: any) => {
 
 const onPageP = (event: any) => {
   pageP.value = event.page
+
   buscaP()
 }
 
@@ -274,6 +338,7 @@ const quieroBuscar = async () => {
   }
 }
 
+//Hay un problema con las paginas, se actualiza y se situa en la primera porque es lo que 
 const editadaReserva = async () => {
   console.log('Editada reserva')
           pageR.value = 0
@@ -283,9 +348,9 @@ const editadaReserva = async () => {
 
 const editadoParking = async () => {
   console.log('Editado parking')
-          pageP.value = 0
-          await buscaP()
-          asignarGlobal();
+    pageP.value = 0
+    await buscaP()
+    asignarGlobal();
 }
 
 
@@ -349,7 +414,8 @@ const asignarGlobal = () => {
       email: fromDBPasajero.value.email,
       nacionalidad: fromDBPasajero.value.nacionalidad
     });
-
+    console.log("pasajero asignado a Pinia: {}",userStore.usuario);
+    
 
     //Forma automatica, usamos [...] para crear una copia.
     if(fromDBReservas.value){
@@ -418,6 +484,12 @@ const formatFecha = (fecha: string) => {
   })
 }
 
+const cerrarCard = () => {
+
+  muestraInfo.value = false
+  reservaSeleccionada.value = undefined
+  reservaParkingSeleccionada.value = undefined
+}
 
 
 
@@ -469,7 +541,8 @@ const formatFecha = (fecha: string) => {
               <DataTable :size="size.value" :value="fromDBReservas"
               paginator
               lazy
-              :rows="3"
+              :rows="sizeR"
+              :first="pageR * sizeR"
               :totalRecords="totalRecordsR"
               :loading="loadingR"
               selectionMode="single"
@@ -488,8 +561,8 @@ const formatFecha = (fecha: string) => {
 
         <Teleport  to="body">
           <EditarReserva v-if="muestraInfo && reservaSeleccionada?.claseAsiento && 
-          reservaSeleccionada.id" class="modal" @Yalotengo="muestraInfo = false, editadaReserva()" 
-          @HuboError="muestraInfo = false" :idReserva="reservaSeleccionada?.vueloSeleccionado"
+          reservaSeleccionada.id" class="modal" @Yalotengo="cerrarCard(), editadaReserva()" 
+          @HuboError="cerrarCard()" :idReserva="reservaSeleccionada?.vueloSeleccionado"
           :asiento="reservaSeleccionada.claseAsiento" :idReservaRes="reservaSeleccionada.id" :dniPasajero="reservaSeleccionada.pasajeroID"/>
         </Teleport>
 
@@ -503,7 +576,8 @@ const formatFecha = (fecha: string) => {
               :value="fromDBParkings"
               paginator
               lazy
-              :rows="3"
+              :rows="sizeP"
+              :first="pageP * sizeP"
               :totalRecords="totalRecordP"
               :loading="loadinP"
               selectionMode="single"
@@ -521,6 +595,7 @@ const formatFecha = (fecha: string) => {
               </div>
           </div>
         </Transition>
+
         <Transition name="fade">
           <div v-if="errorRegPas" class="divError">
               <h1 class="mensajeError">Datos incorrectos 🚨</h1>
