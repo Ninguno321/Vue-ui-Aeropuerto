@@ -50,6 +50,7 @@ interface Vuelo {
   origen: string
   destino: string
   estadoVuelo: string
+  capacidad: number
 }
 
 watch(selectedReserva, (vuelo) => {
@@ -73,6 +74,8 @@ const buscaVuelos = async () => {
 
     vuelosFromDB.value = (data.content ?? []).map((v: any) => ({
       ...v,
+      fechaSalidaFormateada: formatFecha(v.fechaSalida),
+      fechaLlegadaFormateada: formatFecha(v.fechaLlegada),  
       origen: v.trayecto?.origen ?? v.origen,
       destino: v.trayecto?.destino ?? v.destino
     }))
@@ -119,7 +122,17 @@ const registradoPasajero = () => {
     reservar()
 }
 
+const formatFecha = (fecha: string) => {
+  const d = new Date(fecha)
 
+  return d.toLocaleString('es-ES', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit'
+  })
+}
 
 
 </script>
@@ -139,8 +152,9 @@ const registradoPasajero = () => {
         v-model:selection="selectedReserva" selectionMode="single" dataKey="id" tableStyle="min-width: 50rem">
         <Column field="origen" header="Origen" sortable />
         <Column field="destino" header="Destino" sortable />
-        <Column field="fechaSalida" header="Fecha Salida" sortable />
-        <Column field="fechaLlegada" header="Fecha Llegada" sortable />
+        <Column field="capacidad" header="Cap." sortable />
+        <Column field="fechaSalidaFormateada" header="Fecha Salida" sortable />
+        <Column field="fechaLlegadaFormateada" header="Fecha Llegada" sortable />
         <Column field="tipoVuelo" header="Tipo" sortable />
         <Column field="estadoVuelo" header="Estado" sortable />
       </DataTable>

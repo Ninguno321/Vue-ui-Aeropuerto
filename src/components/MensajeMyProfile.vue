@@ -137,7 +137,7 @@ const fromDBParkings:Ref<datosParkings[]> = ref([])
 //Esto es para la paginacion de los las tablas Reservas y Parking
 const pageR = ref(0)
 const sizeR = 3
-const sortFieldR = ref("fechaReserva")
+const sortFieldR = ref("id")
 const sortOrderR = ref(1)
 const loadingR = ref(false)
 const totalRecordsR = ref(0)
@@ -145,12 +145,12 @@ const totalRecordsR = ref(0)
 
 const pageP = ref(0)
 const sizeP = 3
-const sortFieldP = ref("fin")
+const sortFieldP = ref("id")
 const sortOrderP = ref(1)
 const loadinP = ref(false)
 const totalRecordP = ref(0)
 
-const reservaParkingSeleccionada = ref('')
+const reservaParkingSeleccionada:Ref<datosParkings|undefined> = ref(undefined)
 
 const reservaSeleccionada:Ref<datosReservas|undefined> = ref(undefined)
 const muestraInfo = ref(false)
@@ -161,6 +161,15 @@ watch(reservaSeleccionada, (reserva) => {
     muestraInfo.value = true;
   }
 })
+
+
+watch(reservaParkingSeleccionada, (reserva) => {
+  console.log("Seleccionamos reserva Parking")
+  if(reserva){
+    //muestraInfo.value = true;
+  }
+})
+
 
 const onPageR = (event: any) => {
   pageR.value = event.page
@@ -214,7 +223,12 @@ const buscaP = async () => {
     const res = await fetch(url)
     const data = await res.json()
 
-    fromDBParkings.value = data.content ?? []
+    fromDBParkings.value = (data.content ?? []).map((v: any) => ({
+      ...v,
+      fechaSalidaFormat: formatFecha(v.fechaInicio),
+      fechaLlegadaFormat: formatFecha(v.fechaFin)
+    })) 
+
     totalRecordP.value = data.totalElements ?? 0
     console.log(totalRecordP.value)
     tieneReservasParking.value = fromDBParkings.value.length > 0
@@ -259,6 +273,22 @@ const quieroBuscar = async () => {
     }
   }
 }
+
+const editadaReserva = async () => {
+  console.log('Editada reserva')
+          pageR.value = 0
+          await buscaR()
+          asignarGlobal();
+}
+
+const editadoParking = async () => {
+  console.log('Editado parking')
+          pageP.value = 0
+          await buscaP()
+          asignarGlobal();
+}
+
+
 
 const quieroRegistrar = async () => {
   try {
@@ -306,6 +336,7 @@ const registrar = () => {
   muestraForm();
 }
 
+//Se puede desglosar para que no actualice todas las variables sino solo la que cambia.
 const asignarGlobal = () => {
   if (fromDBPasajero.value) {
     console.log("Asignamos valores a Pinia");
@@ -373,6 +404,23 @@ watch(selectedCountry, (val) => {
         pasajeroRegistro.value.nacionalidad = val || '';
     }
 });
+
+
+const formatFecha = (fecha: string) => {
+  const d = new Date(fecha)
+
+  return d.toLocaleString('es-ES', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit'
+  })
+}
+
+
+
+
 </script>
 
 <template>
@@ -433,22 +481,16 @@ watch(selectedCountry, (val) => {
                       <Column field="fechaReserva" header="Fecha" sortable></Column>
                       <Column field="vueloSeleccionado" header="Vuelo" ></Column>
                       <Column field="claseAsiento" header="Clase" sortable ></Column>
-                      <Column header="Cancelada" sortable>
-                          <template #body="slotProps">
-                              {{ slotProps.data.cancelada ? 'Sí' : 'No' }}
-                          </template>
-                      </Column>
                   </DataTable>
               </div>
           </div>
         </Transition> 
 
-
         <Teleport  to="body">
           <EditarReserva v-if="muestraInfo && reservaSeleccionada?.claseAsiento && 
-          reservaSeleccionada.id" class="modal" @Yalotengo="muestraInfo = false" 
-          @HuboError="muestraInfo = false" :idReserva="reservaSeleccionada?.id"
-          :asiento="reservaSeleccionada.claseAsiento"/>
+          reservaSeleccionada.id" class="modal" @Yalotengo="muestraInfo = false, editadaReserva()" 
+          @HuboError="muestraInfo = false" :idReserva="reservaSeleccionada?.vueloSeleccionado"
+          :asiento="reservaSeleccionada.claseAsiento" :idReservaRes="reservaSeleccionada.id" :dniPasajero="reservaSeleccionada.pasajeroID"/>
         </Teleport>
 
 
@@ -472,14 +514,13 @@ watch(selectedCountry, (val) => {
               tableStyle="min-width: 50rem">
               <Column field="tipoParking" header="Tipo" sortable></Column>
               <Column field="precio" header="Precio" sortable></Column>
-              <Column field="fechaInicio" header="Inicio" sortable></Column>
-              <Column field="fechaFin" header="Fin" sortable></Column>       
+              <Column field="fechaSalidaFormat" header="Inicio" sortable></Column>
+              <Column field="fechaLlegadaFormat" header="Fin" sortable></Column>       
               <Column field="pasajeroID" header="Pasajero"></Column>
             </DataTable>
               </div>
           </div>
         </Transition>
-        
         <Transition name="fade">
           <div v-if="errorRegPas" class="divError">
               <h1 class="mensajeError">Datos incorrectos 🚨</h1>

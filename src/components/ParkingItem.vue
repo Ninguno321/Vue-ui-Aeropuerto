@@ -26,30 +26,35 @@ const confirmaReserva = () => {
             </div>
         </div>
 
-        <footer class="finalF">
+        <div class="finalF">
             <slot name="final"> </slot>
-        </footer>
+            <slot name="finalMas"> </slot>
+        </div>
+
     </div>
 </template>
 
 <style scoped>
-    .main-container {
-        display: flex;
-        flex-direction: column;
+.main-container {
+    display: flex;
+    flex-direction: column;
 
-        margin-top: 2rem;
-    }
-
-    .item {
-        flex: 1; 
-    }
-
+    margin-top: 2rem;
+}
+.item {
+    flex: 1; 
+}
+.details{
+    margin-top: 2rem;
+    display: flex;
+}
 .finalF {
     display: flex;
     justify-content: right; 
-
     margin-top: 10rem;
+    gap: 1rem;
 }
+
 
 
 </style>

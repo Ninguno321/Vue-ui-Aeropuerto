@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {onMounted,watch, ref, type Ref} from 'vue'
+import {onMounted,computed, watch, ref, type Ref} from 'vue'
 import Card from 'primevue/card';
 import Button from 'primevue/button';
 import { useUserStore, useVueloStore } from '@/stores/datos';
@@ -12,8 +12,6 @@ import Column from 'primevue/column';
 
 const userStore = useUserStore()
 const reservaStore = useReservaStore()
-const vueloStore = useVueloStore()
-
 
 const dniPasajero:Ref<string | undefined> = ref(undefined);
 const nombrePasajero:Ref<string | undefined> = ref(undefined);
@@ -26,15 +24,18 @@ const emit = defineEmits(['Yalotengo', 'HuboError'])
 const props = defineProps<{         //Me llega la url donde estaba antes
   idReserva: string | undefined
   asiento: string | undefined
+  idReservaRes: string | undefined
+  dniPasajero: string | undefined
 }>()
 
 
 
-onMounted(() => {
+onMounted(async () => {
     dniPasajero.value = userStore.usuario?.dni
     nombrePasajero.value = userStore.usuario?.nombrePasajero
     apellidoPasajero.value = userStore.usuario?.apellidos
     emailPasajero.value = userStore.usuario?.email
+    await buscaVuelo();
 })
 
 const API_URL = import.meta.env.VITE_API_URL
@@ -45,7 +46,7 @@ const editarReserva = async () => {
     errorReservando.value = false;
     try {
         const body = {
-            reservaSeleccionada: props.idReserva,
+            reservaSeleccionada: props.idReservaRes,
             claseAsiento: claseAsientoName.value
 
         }
@@ -70,6 +71,78 @@ const editarReserva = async () => {
     }
 }
 
+
+interface Vuelo {
+  id: string;
+  tipoVuelo: string;
+  estadoVuelo: string;
+  capacidad: number;
+  fechaSalida: string;  
+  fechaLlegada: string;
+  aeropuertoSalida: string;
+  aeropuertoLlegada: string;
+  
+  fechaVuelo: {
+    fechaInicio: string;
+    fechaFin: string;
+  };
+  
+  trayecto: {
+    origen: string;
+    destino: string;
+  };
+  
+  avion: {
+    capacidadTotal: number;
+  };
+}
+
+
+const vuelo:Ref<Vuelo|undefined> = ref(undefined)
+
+
+const buscaVuelo = async () => {
+    errorReservando.value = false;
+    try {
+        let response = await fetch(API_URL+'umu/aeropuerto/public/avion?vueloId='+props.idReserva);
+
+        if (!response.ok) {
+          throw new Error('Fallo con el vuelo no encontrado');
+        }
+        let datos = await response.json();
+        console.log('Datos del pasajero:', datos);
+
+        vuelo.value = datos as Vuelo;
+        console.log('Registro exitoso:', datos);
+
+    }catch(_e){
+        console.log('Error en la reserva:', _e);
+        errorReservando.value = true;
+    }
+}
+
+const cancelaReserva = async () => {
+    console.log("cancelando reserva")
+    errorReservando.value = false;
+    try {
+        console.log(props.idReservaRes, props.dniPasajero)
+        let response = await fetch(API_URL+'umu/aeropuerto/public/vuelo/reservas/cancelar?reservaId='+props.idReservaRes+'&pasajeroId=' + props.dniPasajero);
+        console.log(response)
+
+        if (!response.ok) {
+          throw new Error('Fallo Reserva no cancelada');
+        }
+        console.log("Hemos cancelado la reserva")
+        emit('Yalotengo')
+    }catch(_e){
+        console.log('Error en la reserva:', _e);
+        errorReservando.value = true;
+    }
+}
+
+
+
+
 interface ClaseAsiento {
     name: string;
     code: string;
@@ -90,6 +163,32 @@ const asientos = ref([
     { name: 'BUSINESS', code: 'BS' }
 ]);
 
+const vueloNoMod = () => {
+    return vuelo.value?.estadoVuelo == 'CANCELADO' || vuelo.value?.estadoVuelo == 'COMPLETADO'
+}
+
+const formatFecha = (fecha: string) => {
+  const d = new Date(fecha)
+
+  const opciones: Intl.DateTimeFormatOptions = {
+    day: '2-digit',
+    month: 'short',
+    hour: '2-digit',
+    minute: '2-digit'
+  }
+
+  return d.toLocaleString('es-ES', opciones)
+}
+
+const vueloFormateado = computed(() => {
+  if (!vuelo.value) return null
+
+  return {
+    ...vuelo.value,
+    fechaSalidaFormateada: formatFecha(vuelo.value.fechaSalida),
+    fechaLlegadaFormateada: formatFecha(vuelo.value.fechaLlegada)
+  }
+})
 
 </script>
 
@@ -100,46 +199,46 @@ const asientos = ref([
         <template #subtitle> <p>DNI: {{ dniPasajero }}</p>
                              <p>Pasajero: {{ nombrePasajero }} {{ apellidoPasajero }} 
                             email: {{ emailPasajero }}</p>
-            {{ props.idReserva }}     
-            {{ props.asiento }}
-            {{ claseAsientoName }}
         </template>
         <template #content>
 
-            Solo puedes editar el asiento o cancelar 
-
-            <DataTable size="small" :value="vueloStore.vuelo ? [vueloStore.vuelo] : []" tableStyle="min-width: 10rem">
-                <Column field="destino" header="To"></Column>
-                <Column field="origen" header="From"></Column>
-                <Column field="fechaLlegada" header="End"></Column>
-                <Column field="fechaSalida" header="Start"></Column>
+            <p v-if="!vueloNoMod()"> Solo puedes editar el asiento o cancelar la reserva. </p>
+            <div v-if="vueloNoMod()" class="divTabla alineacion">
+                <i class="pi pi-exclamation-circle" />
+                <p>Este vuelo no se puede modificar.</p>
+            </div>
+            <DataTable size="small" :value="vueloFormateado ? [vueloFormateado] : []" tableStyle="min-width: 10rem; margin-top: 0.5rem">
+                <Column field="aeropuertoLlegada" header="To"></Column>
+                <Column field="aeropuertoSalida" header="From"></Column>
+                <Column field="fechaLlegadaFormateada" header="End"></Column>
+                <Column field="fechaSalidaFormateada" header="Start"></Column>
             </DataTable>
 
 
-            <DataTable size="small" :value="vueloStore.vuelo ? [vueloStore.vuelo] : []" tableStyle="min-width: 10rem">
-                <Column field="tipoVuelo" header="Vuelo"></Column>
+            <DataTable size="small" :value="vueloFormateado ? [vueloFormateado] : []" tableStyle="min-width: 10rem; margin-top: 1rem">
+                <Column field="tipoVuelo" header="Tipo"></Column>
                 <Column field="estadoVuelo" header="Estado"></Column>
-                <Column header="Clase">
-                        <template #body>
-                            {{ claseAsientoName || 'No seleccionada' }}
-                        </template>
-                </Column>
+                <Column field="capacidad" header="Capacidad"></Column>
+
             </DataTable>
+
             <div class="espacio">
-                <Select class="w-full md:w-56" size="small" v-model="claseAsiento" :options="asientos" optionLabel="name" placeholder="Clase" :invalid="!claseAsiento"  />
+                <Select class="w-full md:w-56" size="small" v-model="claseAsiento" :disabled="vueloNoMod()" :options="asientos" optionLabel="name" placeholder="Clase" :invalid="!claseAsiento"  />
             </div>  
         </template>
         <template #footer>
             <div class="flex gap-4 mt-1 separa">
-                <Button @click="$emit('HuboError')" label="Cancel" severity="secondary" variant="outlined" class="w-full" />
-                <Button :disabled="claseAsientoName === '' || errorReservando" @click="editarReserva" label="Reservar" raised icon="pi pi-calendar-plus" iconPos="left"/>
+                <Button @click="$emit('HuboError')" label="Cerrar" severity="secondary" variant="outlined" class="w-full" />
+                <Button :disabled="claseAsientoName === '' || errorReservando || vueloNoMod() " @click="editarReserva" label="Editar" raised icon="pi pi-file-edit" iconPos="left"/>
                 <Transition name="fade2">
                     <div v-if="errorReservando" class="divTabla alineacion">
                     <i class="pi pi-exclamation-circle" />
                     <p>Ya está reservado</p>
                     </div>
                 </Transition>
-                        
+                <div v-if="!errorReservando" style="display: flex; align-items: flex-end; margin-left: auto;">                
+                <Button  :disabled="vueloNoMod()" @click="cancelaReserva" severity="danger" label="Cancelar" raised icon="pi pi-times" iconPos="left"/>
+                </div>
             </div>
         </template>
     </Card>

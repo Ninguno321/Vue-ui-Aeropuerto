@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {onMounted,watch, ref, type Ref} from 'vue'
+import {onMounted,computed,watch, ref, type Ref} from 'vue'
 import Card from 'primevue/card';
 import Button from 'primevue/button';
 import { useUserStore, useVueloStore } from '@/stores/datos';
@@ -90,6 +90,27 @@ const asientos = ref([
     { name: 'BUSINESS', code: 'BS' }
 ]);
 
+const formatFecha = (fecha: string) => {
+  const d = new Date(fecha)
+
+  return d.toLocaleString('es-ES', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit'
+  })
+}
+
+const vueloFormateado = computed(() => {
+  if (!vueloStore.vuelo) return null
+
+  return {
+    ...vueloStore.vuelo,
+    fechaSalidaFormateada: formatFecha(vueloStore.vuelo.fechaSalida),
+    fechaLlegadaFormateada: formatFecha(vueloStore.vuelo.fechaLlegada)
+  }
+})
 
 </script>
 
@@ -107,8 +128,8 @@ const asientos = ref([
             <DataTable size="small" :value="vueloStore.vuelo ? [vueloStore.vuelo] : []" tableStyle="min-width: 10rem">
                 <Column field="destino" header="To"></Column>
                 <Column field="origen" header="From"></Column>
-                <Column field="fechaLlegada" header="End"></Column>
-                <Column field="fechaSalida" header="Start"></Column>
+                <Column field="fechaLlegadaFormateada" header="End"></Column>
+                <Column field="fechaSalidaFormateada" header="Start"></Column>
             </DataTable>
 
 
