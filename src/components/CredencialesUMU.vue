@@ -22,13 +22,13 @@ function showConfetti() {
 
 <template>
     <div class="div1">
-        <h1>En UMUFly, nuestro público objetivo son los usuarios que dispongan de una 
+        <h1 data-cy="texto-about">En UMUFly, nuestro público objetivo son los usuarios que dispongan de una 
             credencial activa en la Universidad de Murcia. </h1> 
         <div class="div2">
         <a @click="cambiaValor()" href="https://www.um.es/" target="_blank" rel="noopener">
-            <i class="pi pi-sign-in" style="font-size: 1.5rem"></i> 
+            <i data-cy="logo-about" class="pi pi-sign-in" style="font-size: 1.5rem"></i> 
         </a>
-        <p v-if="clicked">Ya te has registrado</p> <p v-if="clicked" class="confeti">🎊</p>
+        <p v-if="clicked" data-cy="registrado-about" >Ya te has registrado</p> <p v-if="clicked" class="confeti">🎊</p>
         </div>
     </div>
 </template>

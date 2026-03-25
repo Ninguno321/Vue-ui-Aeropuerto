@@ -498,7 +498,7 @@ const cerrarCard = () => {
 <template>
     <div>
           <Transition name="fade">
-          <h2 v-if="!fromDBPasajero && !quiereRegistrar && !tengoDatos">
+          <h2 data-cy="msg-info-profile" v-if="!fromDBPasajero && !quiereRegistrar && !tengoDatos">
             Para ver tu información introduce tu DNI.
           </h2>
           </Transition >
@@ -518,6 +518,7 @@ const cerrarCard = () => {
             placeholder="DNI" 
             type="text" 
             variant="filled" 
+            data-cy="cuadro-texto-dni-profile"
           />
         </div>
         </Transition>
@@ -604,31 +605,34 @@ const cerrarCard = () => {
 
         <Transition name="fade">
         <div class="divFrom" v-if="quiereRegistrar && !fromDBPasajero">       
-            <IftaLabel v-if="form1" >
+            
+            <IftaLabel data-cy="form-n" v-if="form1" >
                 <InputText class="texto2" v-model="pasajeroRegistro.nombrePasajero" :invalid="!pasajeroRegistro.nombrePasajero" />
                 <label for="nombre">Nombre</label>
             </IftaLabel>
 
-            <IftaLabel>
+            <IftaLabel data-cy="form-a" >
                 <InputText class="texto2" v-model="pasajeroRegistro.apellidos" :invalid="!pasajeroRegistro.apellidos" />
                 <label for="apellidos">Apellidos</label>
             </IftaLabel>
-            <IftaLabel>
+            <IftaLabel data-cy="form-d">
                 <InputText class="texto2" v-model="pasajeroRegistro.dni" :invalid="!pasajeroRegistro.dni" />
                 <label for="dni">DNI</label>
             </IftaLabel>
-            <IftaLabel>
+            <IftaLabel data-cy="form-e">
                 <InputText class="texto2" v-model="pasajeroRegistro.email" :invalid="!pasajeroRegistro.email" />
                 <label for="email">Email</label>
             </IftaLabel>
 
-            <IftaLabel>
+            <IftaLabel data-cy="form-na">
                 <AutoComplete 
                     v-model="selectedCountry" 
                     optionLabel="name" 
                     :suggestions="filteredCountries" 
+                    :invalid = "!selectedCountry"
                     @complete="search" 
                     dropdown 
+                    
                     class="w-full"
                         :pt="{
                     input: { class: 'texto2' }}">
@@ -657,6 +661,8 @@ const cerrarCard = () => {
               label="Buscar" 
               icon="pi pi-search" iconPos="left"
               raised 
+              :disabled="!variable"
+              data-cy="boton-buscar-profile"
             />
           </Transition>
             <Transition name="fade">  
@@ -667,18 +673,22 @@ const cerrarCard = () => {
               label="Registro" 
               icon="pi pi-user-plus" iconPos="left"
               severity="secondary" 
-              raised 
+              raised
+              data-cy="boton-registro-profile"
             />
           </Transition>
           <Transition name="fade">  
 
             <Button 
+              data-cy="boton-registrar-profile"
               v-if="quiereRegistrar && !fromDBPasajero" 
               @click="quieroRegistrar"  
               label="Registrar" 
               icon="pi pi-user-plus" iconPos="left"
               severity="secondary" 
-              raised 
+              raised
+              :disabled = "!selectedCountry || !pasajeroRegistro.apellidos || !pasajeroRegistro.dni || !pasajeroRegistro.email
+              || !pasajeroRegistro.nacionalidad || !pasajeroRegistro.nombrePasajero"
             />
           </Transition>
 

@@ -9,16 +9,16 @@ import { RouterView, RouterLink } from 'vue-router';
   </div>
 
   <header class = "app-header">
-    <img alt="Vue logo" class="logo" src="@/assets/image.png" width="250" height="250" />
+    <img alt="Vue logo" data-cy="logo-avion" class="logo" src="@/assets/image.png" width="250" height="250" />
 
     <div class="wrapper">
       <HelloWorld msg="UMUFly" />
 
       <nav class="nav">
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
-        <RouterLink to="/profile">Profile</RouterLink>
-        <RouterLink to="/aeropuerto">App</RouterLink>
+        <RouterLink data-cy="Home" to="/">Home</RouterLink>
+        <RouterLink data-cy="About" to="/about">About</RouterLink>
+        <RouterLink data-cy="Profile" to="/profile">Profile</RouterLink>
+        <RouterLink data-cy="aeropuerto" to="/aeropuerto">App</RouterLink>
       </nav>
       
     </div>
