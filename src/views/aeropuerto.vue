@@ -25,14 +25,14 @@ const reservar = () => {
       <div class="columnas">
         <Transition name="fade">
           <div class="columna">
-            <p>Pulse "Buscar" para ver todos los vuelos disponibles.</p>
-              <Button @click="buscar" label="Buscar" icon="pi pi-search" iconPos="left"  raised />
+            <p data-cy="msg1-aero">Pulse "Buscar" para ver todos los vuelos disponibles.</p>
+              <Button data-cy="boton-buscar-aero" @click="buscar" label="Buscar" icon="pi pi-search" iconPos="left"  raised />
           </div>
         </Transition> 
         <Transition name="fade">
           <div class="columna">
-            <p>Pulse "Reservar" para reservar un vuelo o un parking.</p>
-            <Button @click="reservar" label="Reservar" raised icon="pi pi-calendar-plus" iconPos="left"/>
+            <p data-cy="msg2-aero">Pulse "Reservar" para reservar un vuelo o un parking.</p>
+            <Button data-cy="boton-reservar-aero" @click="reservar" label="Reservar" raised icon="pi pi-calendar-plus" iconPos="left"/>
           </div>
         </Transition>
       </div>

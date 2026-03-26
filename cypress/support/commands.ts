@@ -54,7 +54,7 @@ declare global {
       inputEvalua(clase: string, placeholder: string, id: string, claseT: string): Chainable<JQuery<HTMLElement>>
       botonEvaluaPlus(texto:string, id:string, atributo:string, valorAtributo :string):Chainable<JQuery<HTMLElement>>
       evaluaDentroPadre(idPadre:string ,hijoT:string, hijoV:string, texto:string, claseBol:string, clase:string):Chainable<JQuery<HTMLElement>>
-    
+      compruebaCelda(idTabla: string, fila: number, columna: number, texto: string): Chainable<JQuery<HTMLElement>>
     }
   }
 }
@@ -134,5 +134,14 @@ Cypress.Commands.add('evaluaDentroPadre', (idPadre, hijoT, hijoV, texto, claseBo
         if(clase) cy.get(hijoV).should(claseBol, clase)
     })
 } )
+
+Cypress.Commands.add('compruebaCelda', (idTabla, fila, columna, texto) => {
+    cy.get(`[data-cy="${idTabla}"]`)
+    .find('tbody tr').eq(fila)
+    .find('td').eq(columna)
+    .should('contain', texto)
+})
+
+
 
 

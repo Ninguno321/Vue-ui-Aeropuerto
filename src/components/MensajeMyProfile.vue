@@ -504,7 +504,7 @@ const cerrarCard = () => {
           </Transition >
 
         <Transition name="fade">
-          <h1 v-if="tengoDatos || fromDBPasajero" class="green" id="titulo1">
+          <h1 data-cy="msg-bienv-profile" v-if="tengoDatos || fromDBPasajero" class="green" id="titulo1">
           Bienvenid@ {{ fromDBPasajero?.nombrePasajero }}
           </h1>
         </Transition>
@@ -525,7 +525,7 @@ const cerrarCard = () => {
 
         <Transition name="fade">
           <div class="divTabla" v-if="tengoDatos || fromDBPasajero">
-          <DataTable :size="size.value" :value="[fromDBPasajero]" tableStyle="min-width: 50rem">
+          <DataTable data-cy="tabla-n-profile" :size="size.value" :value="[fromDBPasajero]" tableStyle="min-width: 50rem">
               <Column field="nombrePasajero" header="Nombre"></Column>
               <Column field="apellidos" header="Apellidos"></Column>
               <Column field="dni" header="DNI"></Column>
@@ -540,6 +540,7 @@ const cerrarCard = () => {
               <h2>Historial de reservas</h2>
               <div class="divTabla" v-if="fromDBReservas.length">
               <DataTable :size="size.value" :value="fromDBReservas"
+              data-cy="tabla-r-profile"
               paginator
               lazy
               :rows="sizeR"
@@ -573,6 +574,7 @@ const cerrarCard = () => {
               <h2>Historial de parkings</h2>
               <div class="divTabla" v-if="fromDBParkings.length">
             <DataTable 
+            data-cy="tabla-p-profile"
               :size="size.value"
               :value="fromDBParkings"
               paginator
@@ -695,8 +697,8 @@ const cerrarCard = () => {
         </div>
     </div>
 
-    <div v-if="tengoDatos" class="botonVolver">
-    <BotonVolver @click="regresarDatos" :msg="'/profile'" />
+    <div  v-if="tengoDatos" class="botonVolver">
+    <BotonVolver data-cy="volver-profile" @click="regresarDatos" :msg="'/profile'" />
   </div>
 </template>
 

@@ -1,0 +1,31 @@
+{
+  "content": [
+
+    {
+        "fecha": {
+                "fechaInicio": "2025-04-18T10:00:00",
+                "fechaFin": "2025-08-16T09:00:00"
+        },
+        "id": "parking1",
+        "tipoParking": "CORTO",
+        "pasajeroID": "47448089D",
+        "precio": "50000",
+        "fechaFin": "2025-08-16T09:00:00",
+        "fechaInicio": "2025-07-16T10:00:00"
+    },
+    {
+        "fecha": {
+                "fechaInicio": "2025-04-18T10:00:00",
+                "fechaFin": "2026-08-16T09:00:00"
+        },
+        "id": "parking2",
+        "tipoParking": "LARGO",
+        "pasajeroID": "47448089D",
+        "precio": "99999",
+        "fechaFin": "2026-08-16T09:00:00",
+        "fechaInicio": "2026-07-16T10:00:00"
+    }
+  ],
+  "totalElements": 2,
+  "totalPages": 1
+}

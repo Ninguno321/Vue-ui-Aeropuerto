@@ -1,0 +1,23 @@
+{
+  "content": [
+
+    {
+        "fechaReserva": "2025-03-22",
+        "id": "reserva1",
+        "vueloSeleccionado": "vuelo1",
+        "pasajeroID": "47448089D",
+        "claseAsiento": "BUSINESS",
+        "cancelada": false
+    },
+    {
+        "fechaReserva": "2025-05-22",
+        "id": "reserva2",
+        "vueloSeleccionado": "vuelo2",
+        "pasajeroID": "47448089D",
+        "claseAsiento": "BUSINESS",
+        "cancelada": false
+    }
+  ],
+  "totalElements": 2,
+  "totalPages": 1
+}

@@ -1,0 +1,24 @@
+{
+  "content": [
+    {
+      "id": "Vuelo1Programado",
+      "tipoVuelo": "NACIONAL",
+      "estadoVuelo": "PROGRAMADO",
+      "capacidad": 180,
+      "fechaSalida": "2025-08-15T10:00:00",
+      "fechaLlegada": "2025-08-15T11:30:00",
+      "trayecto": { "origen": "MAD", "destino": "BRC" }
+    },
+    {
+      "id": "Vuelo2Cancelado",
+      "tipoVuelo": "INTERNACIONAL",
+      "estadoVuelo": "CANCELADO",
+      "capacidad": 250,
+      "fechaSalida": "2025-08-16T09:00:00",
+      "fechaLlegada": "2025-08-16T12:00:00",
+      "trayecto": { "origen": "BRC", "destino": "PAR" }
+    }
+  ],
+  "totalElements": 2,
+  "totalPages": 1
+}

@@ -93,6 +93,14 @@ describe('Test de la pagina de Profile', () => {
 
         cy.botonEvalua("not.be.disabled", "Registrar", "boton-registrar-profile")
     })
+        
+    it('Rellenar MEDIO formulario NO valida el boton de Registrar', () => {
+        cy.get('[data-cy="boton-registro-profile"]').click()
+        cy.get('[data-cy="form-n"]').find('input').type("Andrey")
+        cy.get('[data-cy="form-a"]').find('input').type("Morales V")
+        cy.get('[data-cy="form-d"]').find('input').type("47448089D")
+        cy.botonEvalua("be.disabled", "Registrar", "boton-registrar-profile")
+    })
 
 
 })
