@@ -115,7 +115,7 @@ const vueloFormateado = computed(() => {
 </script>
 
 <template>
-    <Card style="width: 25rem; overflow: hidden">
+    <Card data-cy="card-confirma-vuelo" style="width: 25rem; overflow: hidden">
         <template #header>
             <img alt="user header" src="/public/fotoChat.png" class="header-image"/>
         </template>
@@ -143,17 +143,17 @@ const vueloFormateado = computed(() => {
                 </Column>
             </DataTable>
             <div class="espacio">
-                <Select class="w-full md:w-56" size="small" v-model="claseAsiento" :options="asientos" optionLabel="name" placeholder="Clase" :invalid="!claseAsiento"  />
+                <Select data-cy="select-asiento-card" class="w-full md:w-56" size="small" v-model="claseAsiento" :options="asientos" optionLabel="name" placeholder="Clase" :invalid="!claseAsiento"  />
             </div>  
         </template>
         <template #footer>
             <div class="flex gap-4 mt-1 separa">
-                <Button @click="$emit('HuboError')" label="Cancel" severity="secondary" variant="outlined" class="w-full" />
-                <Button :disabled="claseAsientoName === '' || errorReservando" @click="hacerReserva" label="Reservar" raised icon="pi pi-calendar-plus" iconPos="left"/>
+                <Button data-cy="btn-cancelar-inforreservavuelo" @click="$emit('HuboError')" label="Cancel" severity="secondary" variant="outlined" class="w-full" />
+                <Button data-cy="btn-confirmar-inforreservavuelo" :disabled="claseAsientoName === '' || errorReservando" @click="hacerReserva" label="Reservar" raised icon="pi pi-calendar-plus" iconPos="left"/>
                 <Transition name="fade2">
                     <div v-if="errorReservando" class="divTabla alineacion">
                     <i class="pi pi-exclamation-circle" />
-                    <p>Ya está reservado</p>
+                    <p>Ya está reservado o hubo un error</p>
                     </div>
                 </Transition>
                         

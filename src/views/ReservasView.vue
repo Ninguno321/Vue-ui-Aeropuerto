@@ -1,12 +1,7 @@
 <script setup lang="ts">    
 import {onMounted,watch, computed, ref, type Ref } from 'vue';                                            //Me llega la funcion para volver a la pantalla anterior.
 import { useRoute, useRouter, RouterView, RouterLink } from 'vue-router';
-import BotonVolver from '@/components/BotonVolver.vue';
-import Button from 'primevue/button';
-import InputText from 'primevue/inputtext';
 import LasReservas from '@/components/LasReservas.vue';
-import Select from 'primevue/select';
-import ConfirmarReservaItem from '@/components/ConfirmarReservaItem.vue';
 import { useUserStore } from '@/stores/datos';  
 
 const routeRuta = useRouter();

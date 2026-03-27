@@ -1,0 +1,9 @@
+{
+      "id": "Vuelo3Programado",
+      "tipoVuelo": "NACIONAL",
+      "estadoVuelo": "PROGRAMADO",
+      "capacidad": 180,
+      "fechaSalida": "2025-08-15T10:00:00",
+      "fechaLlegada": "2025-08-15T11:30:00",
+      "trayecto": { "origen": "MAD", "destino": "BRC" }
+}

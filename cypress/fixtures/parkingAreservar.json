@@ -1,0 +1,12 @@
+{
+    "fecha": {
+            "fechaInicio": "2026-03-28T11:28:00",
+            "fechaFin": "2026-03-28T11:31:00"
+    },
+    "id": "parking8",
+    "tipoParking": "LARGO",
+    "pasajeroID": "47448089D",
+    "precio": "99999",
+        "fechaInicio": "2026-03-28T11:28:00",
+        "fechaFin": "2026-03-28T11:31:00"
+}

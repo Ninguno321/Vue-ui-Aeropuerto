@@ -601,7 +601,7 @@ const cerrarCard = () => {
 
         <Transition name="fade">
           <div v-if="errorRegPas" class="divError">
-              <h1 class="mensajeError">Datos incorrectos 🚨</h1>
+              <h1 data-cy="datos-err-profile" class="mensajeError">Datos incorrectos 🚨</h1>
           </div>
         </Transition>
 

@@ -143,12 +143,12 @@ function showConfetti() {
 
                 <div v-if="!muestraMasInfo" class="card flex-col flex justify-center ">
                      <label for="datepicker-24h" class="font-bold block mb-2"> {{userStore.usuario?.nombrePasajero ?? 'Usuario, '}} seleccione el periodo de parking a reservar</label>
-                    <DatePicker v-model="date" :invalid="!date" :minDate="minDate" selectionMode="range" showTime  hourFormat="24" :manualInput="false" />
+                    <DatePicker data-cy="date-picker" v-model="date" :invalid="!date" :minDate="minDate" selectionMode="range" showTime  hourFormat="24" :manualInput="false" />
                 </div>    
                               <div v-else>
 
                     <ScrollPanel class="item" style="width: 100%; height: 200px">
-                        <p style="margin-bottom: 1rem;"> 
+                        <p data-cy="gracias" style="margin-bottom: 1rem;"> 
                             Muchas gracias por completar la reserva de parking con nosotros, {{ userStore.usuario?.nombrePasajero }}, puedes revisarla en tu perfil o ir a reservar un vuelo. 😊
                         </p>
                         <p style="margin-bottom: 0.5rem;">- Términos y condiciones 😨</p>
@@ -165,14 +165,14 @@ function showConfetti() {
     
         <template #final>
             <div v-if="muestraMasInfo" class="masinfo">
-                <BotonLibre   :ruta="'/profile'" :label="'Ir a mi perfil'" :icono="'pi pi-user'"/>
-                <BotonLibre   :ruta="'/buscar/vuelos'" :label="'Reservar Vuelo'" :icono="'pi pi-search-plus'" />
+                <BotonLibre  data-cy="boton-irperfil-desde-parking" :ruta="'/profile'" :label="'Ir a mi perfil'" :icono="'pi pi-user'"/>
+                <BotonLibre  data-cy="boton-reservar-vuelo-desde-parking" :ruta="'/buscar/vuelos'" :label="'Reservar Vuelo'" :icono="'pi pi-search-plus'" />
             </div>
                 
         </template>
 
         <template #finalMas class="finalMas">
-            <Button v-if="!muestraMasInfo" :disabled="!date  || date[0] === date[1]" @click="reservar" label="Reservar" raised icon="pi pi-calendar-plus" iconPos="left"/>
+            <Button data-cy="reservar-boton-parking" v-if="!muestraMasInfo" :disabled="!date  || date[0] === date[1]" @click="reservar" label="Reservar" raised icon="pi pi-calendar-plus" iconPos="left"/>
             <BotonLibre :icono="'pi pi-arrow-left'" :label="'Volver'" :ruta="'/aeropuerto'"/>
         </template>
 

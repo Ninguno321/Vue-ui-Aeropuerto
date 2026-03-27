@@ -140,7 +140,8 @@ const formatFecha = (fecha: string) => {
 <template>
   <Transition name="fade2">
     <div class="divTabla" v-if="vuelosFromDB.length">
-      <DataTable 
+      <DataTable
+        data-cy="form-vuelos-vuelos"
         class="tabla" 
         :value="vuelosFromDB" 
         paginator lazy 
@@ -164,13 +165,13 @@ const formatFecha = (fecha: string) => {
   <Transition name="fade2">
     <div v-if="!vuelosFromDB.length && iniciado" class="divTabla alineacion">
       <i class="pi pi-exclamation-circle" />
-      <p>No hay vuelos disponibles, lamentamos las molestias.</p>
+      <p data-cy="msg-no-vuelos-buscar" >No hay vuelos disponibles, lamentamos las molestias.</p>
     </div>
   </Transition>
 
   <Transition name="fade2">
     <div v-if="iniciado" class="div2">
-      <BotonVolver :msg="'/aeropuerto'" />
+      <BotonVolver data-cy="volver-aero-buscar" :msg="'/aeropuerto'" />
     </div>
   </Transition>
 
@@ -183,9 +184,10 @@ const formatFecha = (fecha: string) => {
 
   <Transition name="fade2">
     <div v-if="iniciado" class="div2 contenedor-botones">
-      <Button @click="buscaVuelos" label="Buscar Vuelos" raised icon="pi pi-search" :loading="loading" />
-      <Button class="p-button" :disabled="!selectedID || esCancelado || mostrarRegistro" @click="reservar" label="Reservar" severity="secondary" raised icon="pi pi-check" />
+      <Button data-cy="boton-buscar-vuelos" @click="buscaVuelos" label="Buscar Vuelos" raised icon="pi pi-search" :loading="loading" />
+      <Button data-cy="boton-reservar-vuelos" class="p-button" :disabled="!selectedID || esCancelado || mostrarRegistro" @click="reservar" label="Reservar" severity="secondary" raised icon="pi pi-check" />
     </div>
+  
   </Transition>
 </template>
     

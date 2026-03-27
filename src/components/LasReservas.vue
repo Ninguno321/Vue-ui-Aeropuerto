@@ -60,7 +60,7 @@ representada por un componente ReservasItem. Para ello, vamos a usar un v-for pa
         <template #icon>
             
             <Fieldset legend="UMUFly">
-                <p class="m-0">
+                <p data-cy="Mensaje-reserva-conf" class="m-0">
                     Hola, {{ userStore.usuario?.nombrePasajero }}:
                     ¡Gracias por unirte a nuestra comunidad de viajeros! Estamos muy felices de tenerte a bordo.
                     Para que puedas empezar a buscar las mejores rutas y asegurar tu próximo asiento frente a la ventana, solo necesitamos que confirmes tu datos haciendo clic en el botón de abajo:
@@ -69,12 +69,12 @@ representada por un componente ReservasItem. Para ello, vamos a usar un v-for pa
         </template>
         <template #heading>
 
-            <Button v-if="!open" @click="confirma" class="boton" label="Mostrar Información" raised icon="pi pi-check-circle" iconPos="left"/>
+            <Button  data-cy="boton-masinfo-res" v-if="!open" @click="confirma" class="boton" label="Mostrar Información" raised icon="pi pi-check-circle" iconPos="left"/>
 
-            <div v-if="muestraMasInfo" class="masinfo">
-                <BotonVolver  :msg="'/buscar/vuelos'" />
-                <BotonLibre   :ruta="'/profile'" :label="'Ir a mi perfil'" :icono="'pi pi-user'"/>
-                <BotonLibre   :ruta="'/reservaParking'" :label="'Reservar parking'" :icono="'pi pi-search-plus'" />
+            <div  v-if="muestraMasInfo" class="masinfo">
+                <BotonVolver data-cy="btn-volver-resvuelo" :msg="'/buscar/vuelos'" />
+                <BotonLibre data-cy="btn-profile-resvuelo"  :ruta="'/profile'" :label="'Ir a mi perfil'" :icono="'pi pi-user'"/>
+                <BotonLibre data-cy="btn-reservarParking-resvuelo"  :ruta="'/reservaParking'" :label="'Reservar parking'" :icono="'pi pi-search-plus'" />
             </div>
 
 
@@ -105,7 +105,7 @@ representada por un componente ReservasItem. Para ello, vamos a usar un v-for pa
 .modal {
   position: fixed;
   z-index: 999;
-  top: 12%;
+  top: 1%;
   left: 50%;
   width: 300px;
   margin-left: -150px;
